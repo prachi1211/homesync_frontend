@@ -35,7 +35,7 @@ export function LoginPage() {
     try {
       await login(form);
       addToast("success", "Welcome back!");
-      navigate("/settings", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       addToast("error", "Login failed", (err as Error).message);
     } finally {
@@ -48,7 +48,7 @@ export function LoginPage() {
     try {
       await googleLogin();
       addToast("success", "Welcome!", "Signed in with Google.");
-      navigate("/settings", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       addToast("error", "Google sign-in failed", (err as Error).message);
     } finally {

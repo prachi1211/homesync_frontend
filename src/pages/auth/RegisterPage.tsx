@@ -47,7 +47,7 @@ export function RegisterPage() {
     try {
       await register(form);
       addToast("success", "Welcome to HomeSync!", "Your account has been created.");
-      navigate("/settings", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       addToast("error", "Registration failed", (err as Error).message);
     } finally {
@@ -60,7 +60,7 @@ export function RegisterPage() {
     try {
       await googleLogin();
       addToast("success", "Welcome!", "Signed in with Google.");
-      navigate("/settings", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       addToast("error", "Google sign-in failed", (err as Error).message);
     } finally {
