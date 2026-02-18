@@ -1,10 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useHousehold } from "../../hooks/useHousehold";
+
+const ONBOARDING_EXEMPT = ["/onboarding", "/join"];
 
 export function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { households, isLoading: householdLoading } = useHousehold();
+  const location = useLocation();
 
-  if (isLoading) {
+  if (authLoading || (isAuthenticated && householdLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream">
         <div className="flex flex-col items-center gap-4 animate-fade-in">
@@ -20,6 +25,12 @@ export function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  const isExempt = ONBOARDING_EXEMPT.some((p) => location.pathname.startsWith(p));
+
+  if (!isExempt && households.length === 0) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <Outlet />;
