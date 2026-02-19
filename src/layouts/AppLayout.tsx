@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../context/ToastContext";
 import { Logo } from "../components/ui/Logo";
@@ -82,6 +82,32 @@ function UserMenu() {
   );
 }
 
+const NAV_ITEMS = [
+  {
+    to: "/dashboard",
+    label: "Dashboard",
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    to: "/groceries",
+    label: "Groceries",
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <path d="M3 6h18" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    ),
+  },
+];
+
 export function AppLayout() {
   return (
     <div className="min-h-screen bg-cream flex flex-col">
@@ -101,6 +127,28 @@ export function AppLayout() {
         <div className="sm:hidden flex justify-center pb-2 px-4">
           <HouseholdSelector />
         </div>
+
+        {/* Nav */}
+        <nav className="border-t border-charcoal-muted/10">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center gap-1">
+            {NAV_ITEMS.map(({ to, label, icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+                    isActive
+                      ? "border-primary text-primary"
+                      : "border-transparent text-charcoal-muted hover:text-charcoal"
+                  }`
+                }
+              >
+                {icon}
+                {label}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
       </header>
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8">

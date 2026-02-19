@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import { useHousehold } from "../hooks/useHousehold";
+import { useGrocery } from "../hooks/useGrocery";
 import { SinglePersonBanner } from "../components/household/SinglePersonBanner";
 
 interface PlaceholderCardProps {
@@ -29,6 +31,8 @@ function PlaceholderCard({ icon, title, description, badge }: PlaceholderCardPro
 
 export function DashboardPage() {
   const { activeHousehold } = useHousehold();
+  const { items: groceryItems } = useGrocery();
+  const unboughtCount = groceryItems.filter((i) => !i.isBought).length;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -53,18 +57,38 @@ export function DashboardPage() {
           Coming Soon
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <PlaceholderCard
-            icon={
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                <path d="M3 6h18" />
-                <path d="M16 10a4 4 0 0 1-8 0" />
-              </svg>
-            }
-            title="Groceries"
-            description="Shared shopping lists for your household."
-            badge="Epic 3"
-          />
+          {/* Live grocery card */}
+          <Link
+            to="/groceries"
+            className="bg-white rounded-lg border border-charcoal-muted/10 shadow-sm p-6 flex flex-col gap-4 hover:shadow-md hover:border-primary/20 transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                  <path d="M3 6h18" />
+                  <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+              </div>
+              {unboughtCount > 0 ? (
+                <span className="text-xs font-semibold text-primary bg-primary-light px-2.5 py-1 rounded-full">
+                  {unboughtCount} to buy
+                </span>
+              ) : (
+                <span className="text-xs font-medium text-charcoal-muted bg-cream-dark px-2.5 py-1 rounded-full">
+                  {groceryItems.length === 0 ? "Empty" : "All done"}
+                </span>
+              )}
+            </div>
+            <div>
+              <h3 className="font-semibold text-charcoal">Groceries</h3>
+              <p className="text-sm text-charcoal-muted mt-1">
+                {groceryItems.length === 0
+                  ? "Start your shopping list."
+                  : `${groceryItems.length} item${groceryItems.length === 1 ? "" : "s"} in your list.`}
+              </p>
+            </div>
+          </Link>
           <PlaceholderCard
             icon={
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">

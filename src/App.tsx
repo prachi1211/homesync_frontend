@@ -12,6 +12,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { OnboardingPage } from "./pages/household/OnboardingPage";
 import { JoinPage } from "./pages/household/JoinPage";
 import { HouseholdSettingsPage } from "./pages/household/HouseholdSettingsPage";
+import { GroceryPage } from "./pages/grocery/GroceryPage";
 
 function RootRedirect() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -46,6 +47,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/groceries" element={<GroceryPage />} />
           <Route path="/household/settings" element={<HouseholdSettingsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
