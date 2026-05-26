@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Domestic Serenity palette ── */
+
+  /* Primary: deep sage green */
+  --color-primary: #0f5238;
+  --color-primary-hover: #0a3d29;
+  --color-primary-light: #edf7f0;
+  --color-primary-50: #edf7f0;
+
+  /* Surfaces */
+  --color-cream: #f8faf6;
+  --color-cream-dark: #f0f4f1;
+
+  /* Text */
+  --color-charcoal: #191c1a;
+  --color-charcoal-light: #4a5568;
+  --color-charcoal-muted: #6b7280;
+
+  /* Semantic green (success / credit) */
+  --color-sage: #059669;
+  --color-sage-light: #ecfdf5;
+  --color-sage-dark: #047857;
+
+  /* Warm terracotta */
+  --color-terracotta: #713638;
+  --color-terracotta-light: #fff0f0;
+
+  /* Feedback */
+  --color-error: #ba1a1a;
+  --color-error-light: #fef2f2;
+  --color-info: #2563eb;
+  --color-info-light: #eff6ff;
+  --color-warning: #d97706;
+  --color-warning-light: #fffbeb;
+
+  /* Sidebar */
+  --color-sidebar: #141414;
+
+  /* Warm border */
+  --color-border: #e8e6e1;
+
+  /* ── Typography ── */
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ── Border Radius ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* ── Animations ── */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-slide-in-right: slide-in-right 0.35s ease-out;
+  --animate-spin-slow: spin 1.2s linear infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Base ── */
+body {
+  font-family: var(--font-body);
+  color: var(--color-charcoal);
+  background-color: var(--color-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-charcoal-muted); border-radius: 3px; }
+
+/* ── Focus ring ── */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
