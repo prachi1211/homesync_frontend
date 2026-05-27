@@ -16,6 +16,7 @@ import { GroceryPage } from "./pages/grocery/GroceryPage";
 import { ChoresPage } from "./pages/chores/ChoresPage";
 import { ExpensesPage } from "./pages/expenses/ExpensesPage";
 import { AnalyticsPage } from "./pages/analytics/AnalyticsPage";
+import { LandingPage } from "./pages/LandingPage";
 
 function RootRedirect() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -23,7 +24,7 @@ function RootRedirect() {
 
   if (authLoading || (isAuthenticated && householdLoading)) return null;
 
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <LandingPage />;
   if (households.length === 0) return <Navigate to="/onboarding" replace />;
   return <Navigate to="/dashboard" replace />;
 }
