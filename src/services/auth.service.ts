@@ -6,7 +6,7 @@ import type {
   UpdateProfilePayload,
   User,
 } from "../types/auth.types";
-import { api, setTokens, clearTokens, getStoredRefreshToken } from "./api.client";
+import { api, setTokens, clearTokens, getStoredRefreshToken, refreshSession } from "./api.client";
 
 export const authService = {
   async register(payload: RegisterPayload): Promise<AuthResponse> {
@@ -50,17 +50,7 @@ export const authService = {
   },
 
   async refreshToken(): Promise<AuthResponse | null> {
-    const refreshToken = getStoredRefreshToken();
-    if (!refreshToken) return null;
-
-    try {
-      const data = await api.post<AuthResponse>("/auth/refresh", { refresh_token: refreshToken });
-      setTokens(data.access_token, data.refresh_token);
-      return data;
-    } catch {
-      clearTokens();
-      return null;
-    }
+    return refreshSession<User>();
   },
 
   logout(): void {
