@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   ShoppingCart, CheckSquare, DollarSign, BarChart2,
   ArrowRight, Users, Home, Zap, Star, Check,
-  RefreshCw, Smartphone, Monitor, Shield, RotateCcw,
+  RefreshCw, Smartphone, Monitor, Shield,
 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 
