@@ -69,7 +69,7 @@ export function MemberList() {
 
   return (
     <>
-      <ul className="divide-y divide-charcoal-muted/10">
+      <ul className="divide-y divide-line">
         {members.map((member) => {
           const isSelf    = member.userId === user?.id;
           const isTarget  = member.role === "owner";

@@ -111,12 +111,12 @@ export function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-fade-in">
-      <h1 className="font-display font-extrabold text-3xl text-charcoal tracking-tight">
+      <h1 className="font-display text-[2rem] sm:text-4xl leading-[1.1] text-charcoal">
         Settings
       </h1>
 
       {/* Profile Section */}
-      <section className="bg-white rounded-2xl border border-charcoal-muted/10 shadow-sm p-6 lg:p-8">
+      <section className="bg-white rounded-2xl border border-line shadow-sm p-6 lg:p-8">
         <h2 className="text-lg font-semibold text-charcoal mb-6">Profile</h2>
         <div className="flex items-start gap-6">
           {/* Avatar */}
@@ -140,7 +140,7 @@ export function SettingsPage() {
               <label className="block text-sm font-medium text-charcoal-light mb-1.5">
                 Email
               </label>
-              <div className="w-full rounded-md border border-charcoal-muted/15 bg-cream-dark px-4 py-3 text-charcoal-light text-sm">
+              <div className="w-full rounded-lg border border-charcoal-muted/15 bg-cream-dark px-4 py-3 text-charcoal-light text-sm">
                 {user?.email}
               </div>
             </div>
@@ -152,7 +152,7 @@ export function SettingsPage() {
       </section>
 
       {/* Change Password Section */}
-      <section className="bg-white rounded-2xl border border-charcoal-muted/10 shadow-sm p-6 lg:p-8">
+      <section className="bg-white rounded-2xl border border-line shadow-sm p-6 lg:p-8">
         <h2 className="text-lg font-semibold text-charcoal mb-6">
           Change Password
         </h2>
@@ -196,7 +196,7 @@ export function SettingsPage() {
       </section>
 
       {/* Households Section */}
-      <section className="bg-white rounded-2xl border border-charcoal-muted/10 shadow-sm p-6 lg:p-8">
+      <section className="bg-white rounded-2xl border border-line shadow-sm p-6 lg:p-8">
         <h2 className="text-lg font-semibold text-charcoal mb-4">
           Households
         </h2>
@@ -210,7 +210,7 @@ export function SettingsPage() {
             <span className="text-sm">You haven't joined any households yet.</span>
           </div>
         ) : (
-          <ul className="divide-y divide-charcoal-muted/10 mb-4">
+          <ul className="divide-y divide-line mb-4">
             {households.map((h) => (
               <li key={h.id} className="flex items-center gap-3 py-3">
                 <HouseholdAvatar id={h.id} name={h.name} size="sm" />

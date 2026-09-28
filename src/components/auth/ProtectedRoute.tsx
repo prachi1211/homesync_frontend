@@ -1,8 +1,33 @@
+import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useHousehold } from "../../hooks/useHousehold";
+import { Logo } from "../ui/Logo";
 
 const ONBOARDING_EXEMPT = ["/onboarding", "/join"];
+
+function Splash() {
+  // A sleeping server can take a while to answer the first request — say so instead of spinning silently
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSlow(true), 6000);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="min-h-dvh flex items-center justify-center bg-cream px-6" role="status" aria-live="polite">
+      <div className="flex flex-col items-center gap-6 animate-fade-in">
+        <Logo size="md" />
+        <div className="h-[3px] w-40 overflow-hidden rounded-full bg-primary/10" aria-hidden="true">
+          <div className="h-full w-1/3 rounded-full bg-primary animate-[splash-bar_1.1s_var(--ease-in-out)_infinite]" />
+        </div>
+        <p className="text-sm text-charcoal-muted text-center max-w-[16rem] min-h-10">
+          {slow ? "Waking up the server — the first load can take up to a minute." : <span className="sr-only">Loading your household</span>}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function ProtectedRoute() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -10,17 +35,7 @@ export function ProtectedRoute() {
   const location = useLocation();
 
   if (authLoading || (isAuthenticated && householdLoading)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
-        <div className="flex flex-col items-center gap-4 animate-fade-in">
-          <svg className="animate-spin-slow h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          <p className="text-charcoal-muted text-sm">Loading...</p>
-        </div>
-      </div>
-    );
+    return <Splash />;
   }
 
   if (!isAuthenticated) {

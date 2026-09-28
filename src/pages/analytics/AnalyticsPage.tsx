@@ -197,7 +197,7 @@ export function AnalyticsPage() {
 
       {/* Header */}
       <div>
-        <h1 className="font-display font-extrabold text-3xl text-charcoal tracking-tight">Analytics</h1>
+        <h1 className="font-display text-[2rem] sm:text-4xl leading-[1.1] text-charcoal">Analytics</h1>
         <p className="text-charcoal-muted mt-1 text-sm">
           Spending trends, chore contributions, and household insights.
         </p>

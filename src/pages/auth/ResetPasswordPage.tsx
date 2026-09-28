@@ -9,7 +9,7 @@ import { validatePassword, validateConfirmPassword } from "../../utils/validatio
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") || "mock-token";
+  const token = searchParams.get("token");
   const { addToast } = useToast();
 
   const [form, setForm] = useState({ password: "", confirm_password: "" });
@@ -28,6 +28,10 @@ export function ResetPasswordPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!token) {
+      addToast("error", "Invalid link", "This password reset link is missing a token. Request a new one.");
+      return;
+    }
     if (!validateForm()) return;
 
     setLoading(true);
@@ -53,7 +57,7 @@ export function ResetPasswordPage() {
     return (
       <AuthLayout title="Password reset!" subtitle="Your password has been updated">
         <div className="space-y-6 animate-slide-up">
-          <div className="bg-sage-light/50 border border-sage/20 rounded-md p-5">
+          <div className="bg-sage-light/50 border border-sage/20 rounded-lg p-5">
             <div className="flex items-start gap-3">
               <svg className="text-sage mt-0.5 shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />

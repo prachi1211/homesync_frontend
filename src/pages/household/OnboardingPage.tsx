@@ -74,7 +74,7 @@ export function OnboardingPage() {
   return (
     <div className="min-h-screen bg-cream flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-charcoal-muted/10">
+      <header className="bg-white border-b border-line">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Logo size="sm" />
           <Button
@@ -96,7 +96,7 @@ export function OnboardingPage() {
         {step === "CHOICE" && (
           <div className="w-full max-w-4xl animate-fade-in">
             <div className="text-center mb-12">
-              <h1 className="font-display font-extrabold text-4xl text-charcoal tracking-tight">
+              <h1 className="font-display text-4xl text-charcoal">
                 Welcome to HomeSync, {firstName}!
               </h1>
               <p className="text-charcoal-muted mt-3 text-lg">
@@ -107,7 +107,7 @@ export function OnboardingPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
               {/* Create card */}
-              <div className="bg-white rounded-xl border border-charcoal-muted/10 shadow-md p-8 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-200 cursor-default">
+              <div className="bg-white rounded-xl border border-line shadow-md p-8 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-200 cursor-default">
                 <div>
                   <div className="w-14 h-14 bg-primary-light rounded-xl flex items-center justify-center mb-6">
                     <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -129,7 +129,7 @@ export function OnboardingPage() {
               </div>
 
               {/* Join card */}
-              <div className="bg-white rounded-xl border border-charcoal-muted/10 shadow-md p-8 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-200 cursor-default">
+              <div className="bg-white rounded-xl border border-line shadow-md p-8 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-200 cursor-default">
                 <div>
                   <div className="w-14 h-14 bg-sage-light rounded-xl flex items-center justify-center mb-6">
                     <svg className="w-7 h-7 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -154,10 +154,10 @@ export function OnboardingPage() {
                         if (codeError) setCodeError(null);
                       }}
                       placeholder="INVITE CODE"
-                      className={`w-full px-4 py-4 rounded-lg font-mono font-bold text-center text-2xl tracking-[0.4em] text-charcoal bg-cream-dark border outline-none transition-all focus:ring-2 focus:ring-primary focus:bg-white placeholder:text-charcoal-muted/40 placeholder:text-base placeholder:tracking-widest ${
+                      className={`w-full px-4 py-4 rounded-lg font-mono font-bold text-center text-2xl tracking-[0.4em] text-charcoal bg-cream-dark border outline-none transition focus:ring-2 focus:ring-primary focus:bg-white placeholder:text-charcoal-muted/40 placeholder:text-base placeholder:tracking-widest ${
                         codeError
                           ? "border-error focus:ring-error"
-                          : "border-charcoal-muted/20"
+                          : "border-line"
                       }`}
                     />
                     {codeError && (
@@ -182,7 +182,7 @@ export function OnboardingPage() {
         {/* ── STEP 2: Create form ──────────────────────────────────────── */}
         {step === "CREATE_FORM" && (
           <div className="w-full max-w-md animate-slide-in-right">
-            <div className="bg-white rounded-xl border border-charcoal-muted/10 shadow-md p-8 space-y-7">
+            <div className="bg-white rounded-xl border border-line shadow-md p-8 space-y-7">
               <button
                 type="button"
                 onClick={() => setStep("CHOICE")}
@@ -235,7 +235,7 @@ export function OnboardingPage() {
         {/* ── STEP 3: Success ──────────────────────────────────────────── */}
         {step === "SUCCESS" && createdHousehold && (
           <div className="w-full max-w-md animate-slide-up">
-            <div className="bg-white rounded-xl border border-charcoal-muted/10 shadow-md p-8 space-y-6 text-center">
+            <div className="bg-white rounded-xl border border-line shadow-md p-8 space-y-6 text-center">
               {/* Animated checkmark */}
               <div className="w-20 h-20 bg-sage-light rounded-full flex items-center justify-center mx-auto">
                 <svg

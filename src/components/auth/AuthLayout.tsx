@@ -36,7 +36,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
         {/* Brand message */}
         <div className="relative z-10 space-y-5">
-          <h2 className="font-display font-extrabold text-4xl xl:text-5xl text-white leading-[1.15]">
+          <h2 className="font-display text-4xl xl:text-5xl text-white leading-[1.15]">
             Your household,<br />beautifully in sync.
           </h2>
           <p className="text-white/65 text-[1.05rem] leading-relaxed max-w-sm">
@@ -54,7 +54,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       {/* ── Right form panel ── */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile top bar */}
-        <div className="lg:hidden px-6 py-4 border-b border-[#E8E6E1] bg-white">
+        <div className="lg:hidden px-6 py-4 border-b border-line bg-white">
           <Logo size="sm" />
         </div>
 
@@ -62,7 +62,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         <div className="flex-1 flex items-center justify-center px-6 py-10 lg:px-16">
           <div className="w-full max-w-md animate-fade-in">
             <div className="space-y-1.5 mb-8">
-              <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-charcoal tracking-tight">
+              <h1 className="font-display text-2xl lg:text-3xl text-charcoal">
                 {title}
               </h1>
               {subtitle && (

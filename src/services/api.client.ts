@@ -21,27 +21,46 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
-async function tryRefresh(): Promise<boolean> {
-  const refreshToken = getStoredRefreshToken();
-  if (!refreshToken) return false;
+export interface RefreshResult<U = unknown> {
+  user: U;
+  access_token: string;
+  refresh_token: string;
+}
 
-  try {
-    const res = await fetch(`${BASE_URL}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
-    if (!res.ok) {
-      clearTokens();
-      return false;
+// Refresh tokens are single-use, so concurrent callers (app boot, several requests
+// hitting an expired access token at once) must share one in-flight request.
+let refreshInFlight: Promise<RefreshResult | null> | null = null;
+
+export function refreshSession<U = unknown>(): Promise<RefreshResult<U> | null> {
+  refreshInFlight ??= (async () => {
+    const refreshToken = getStoredRefreshToken();
+    if (!refreshToken) return null;
+
+    try {
+      const res = await fetch(`${BASE_URL}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      if (!res.ok) {
+        clearTokens();
+        return null;
+      }
+      const json = await res.json() as { data: RefreshResult };
+      setTokens(json.data.access_token, json.data.refresh_token);
+      return json.data;
+    } catch {
+      // Network failure — keep the refresh token so a later attempt can succeed
+      return null;
     }
-    const json = await res.json() as { data: { access_token: string; refresh_token: string } };
-    setTokens(json.data.access_token, json.data.refresh_token);
-    return true;
-  } catch {
-    clearTokens();
-    return false;
-  }
+  })().finally(() => {
+    refreshInFlight = null;
+  });
+  return refreshInFlight as Promise<RefreshResult<U> | null>;
+}
+
+async function tryRefresh(): Promise<boolean> {
+  return (await refreshSession()) !== null;
 }
 
 async function apiRequest<T>(

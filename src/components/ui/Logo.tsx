@@ -25,7 +25,7 @@ export function Logo({ size = "md", className, light = false }: LogoProps) {
         <rect x="26" y="8" width="4" height="8" rx="1" fill={chimneyColor} />
         <rect x="17" y="17" width="6" height="5" rx="1" fill={windowColor} />
       </svg>
-      <span className={cn("font-display font-extrabold tracking-tight", s.text, light ? "text-white" : "text-charcoal")}>
+      <span className={cn("font-sans font-extrabold tracking-tight", s.text, light ? "text-white" : "text-charcoal")}>
         HomeSync
       </span>
     </div>

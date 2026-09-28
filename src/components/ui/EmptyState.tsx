@@ -90,9 +90,11 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-      <div className="text-charcoal-muted mb-4">{icons[icon]}</div>
-      <h3 className="font-semibold text-charcoal text-lg mb-2">{title}</h3>
+    <div className="flex flex-col items-center justify-center py-14 px-6 text-center animate-fade-in">
+      <div className="mb-5 h-20 w-20 rounded-full bg-primary-light text-primary/80 grid place-items-center [&_svg]:h-8 [&_svg]:w-8">
+        {icons[icon]}
+      </div>
+      <h3 className="font-display text-2xl text-charcoal mb-1.5">{title}</h3>
       <p className="text-charcoal-muted text-sm max-w-xs leading-relaxed mb-6">
         {description}
       </p>

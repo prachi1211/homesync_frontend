@@ -31,6 +31,18 @@ export function Modal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
+  // Lock page scroll and hand focus back to the trigger on close
+  useEffect(() => {
+    if (!open) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      previouslyFocused?.focus?.();
+    };
+  }, [open]);
+
   // Trap focus inside modal
   useEffect(() => {
     if (!open) return;
@@ -65,31 +77,39 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-[#0c1a13]/40 backdrop-blur-[2px] animate-fade-in"
         onClick={onClose}
       />
 
-      {/* Card */}
+      {/* Card — bottom sheet on phones, centered dialog from sm up */}
       <div
         ref={dialogRef}
         className={cn(
-          "relative bg-white rounded-lg shadow-xl w-full max-w-md animate-slide-up",
-          variant === "danger" && "border border-error/20"
+          "relative bg-white w-full sm:max-w-md flex flex-col",
+          "max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)]",
+          "rounded-t-3xl sm:rounded-2xl shadow-xl",
+          "animate-sheet-up sm:animate-pop-in",
+          variant === "danger" && "sm:border sm:border-error/15"
         )}
       >
+        {/* Grabber (phones only) */}
+        <div className="sm:hidden flex justify-center pt-2.5" aria-hidden="true">
+          <span className="h-1 w-10 rounded-full bg-charcoal/15" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-charcoal-muted/10">
+        <div className="flex items-center justify-between gap-4 px-6 pt-4 pb-3 sm:pt-5">
           <h2
             id="modal-title"
             className={cn(
-              "font-semibold text-lg",
+              "font-semibold text-[1.0625rem] leading-snug",
               variant === "danger" ? "text-error" : "text-charcoal"
             )}
           >
@@ -97,7 +117,7 @@ export function Modal({
           </h2>
           <button
             onClick={onClose}
-            className="text-charcoal-muted hover:text-charcoal transition-colors rounded p-1"
+            className="-mr-2 h-9 w-9 grid place-items-center rounded-full text-charcoal-muted hover:text-charcoal hover:bg-cream-dark transition-colors"
             aria-label="Close"
           >
             <svg
@@ -115,11 +135,11 @@ export function Modal({
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5">{children}</div>
+        <div className="px-6 pb-5 pt-1 overflow-y-auto overscroll-contain">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-charcoal-muted/10 flex items-center justify-end gap-3">
+          <div className="px-6 py-4 border-t border-line bg-cream/60 sm:rounded-b-2xl flex items-center justify-end gap-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
             {footer}
           </div>
         )}
@@ -162,13 +182,9 @@ export function ConfirmModal({
           </Button>
           <Button
             size="sm"
+            variant={variant === "danger" ? "danger" : "primary"}
             onClick={onConfirm}
             loading={loading}
-            className={
-              variant === "danger"
-                ? "bg-error hover:bg-error/90 text-white shadow-sm"
-                : undefined
-            }
           >
             {confirmLabel}
           </Button>

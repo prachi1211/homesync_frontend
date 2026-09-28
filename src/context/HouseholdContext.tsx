@@ -88,8 +88,10 @@ export function HouseholdProvider({ children }: { children: ReactNode }) {
 
         if (targetId) {
           try {
-            activeHousehold = await householdService.getHousehold(targetId);
-            members = await householdService.getMembers(targetId);
+            [activeHousehold, members] = await Promise.all([
+              householdService.getHousehold(targetId),
+              householdService.getMembers(targetId),
+            ]);
             localStorage.setItem(ACTIVE_HOUSEHOLD_KEY, targetId);
           } catch {
             activeHousehold = null;
@@ -143,8 +145,10 @@ export function HouseholdProvider({ children }: { children: ReactNode }) {
         user.name,
         payload
       );
-      const members = await householdService.getMembers(household.id);
-      const summaries = await householdService.getUserHouseholds(user.id);
+      const [members, summaries] = await Promise.all([
+        householdService.getMembers(household.id),
+        householdService.getUserHouseholds(user.id),
+      ]);
       localStorage.setItem(ACTIVE_HOUSEHOLD_KEY, household.id);
       setState({
         households: summaries,
@@ -166,8 +170,10 @@ export function HouseholdProvider({ children }: { children: ReactNode }) {
         user.name,
         payload
       );
-      const members = await householdService.getMembers(household.id);
-      const summaries = await householdService.getUserHouseholds(user.id);
+      const [members, summaries] = await Promise.all([
+        householdService.getMembers(household.id),
+        householdService.getUserHouseholds(user.id),
+      ]);
       localStorage.setItem(ACTIVE_HOUSEHOLD_KEY, household.id);
       setState({
         households: summaries,
@@ -183,8 +189,10 @@ export function HouseholdProvider({ children }: { children: ReactNode }) {
 
   const setActiveHousehold = useCallback(
     async (id: string) => {
-      const household = await householdService.getHousehold(id);
-      const members = await householdService.getMembers(id);
+      const [household, members] = await Promise.all([
+        householdService.getHousehold(id),
+        householdService.getMembers(id),
+      ]);
       localStorage.setItem(ACTIVE_HOUSEHOLD_KEY, id);
       setState((prev) => ({
         ...prev,

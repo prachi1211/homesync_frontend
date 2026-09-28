@@ -10,13 +10,13 @@
   --color-primary-50: #edf7f0;
 
   /* Surfaces */
-  --color-cream: #f8faf6;
-  --color-cream-dark: #f0f4f1;
+  --color-cream: #f7f9f5;
+  --color-cream-dark: #eff3ee;
 
   /* Text */
   --color-charcoal: #191c1a;
-  --color-charcoal-light: #4a5568;
-  --color-charcoal-muted: #6b7280;
+  --color-charcoal-light: #4a534d;
+  --color-charcoal-muted: #6b736d;
 
   /* Semantic green (success / credit) */
   --color-sage: #059669;
@@ -32,18 +32,21 @@
   --color-error-light: #fef2f2;
   --color-info: #2563eb;
   --color-info-light: #eff6ff;
-  --color-warning: #d97706;
+  --color-warning: #b45309;
   --color-warning-light: #fffbeb;
 
-  /* Sidebar */
-  --color-sidebar: #141414;
+  /* Sidebar — deep forest, same family as the auth panel and landing page */
+  --color-sidebar: #0c3a28;
+  --color-sidebar-ink: #cfe6d9;
 
-  /* Warm border */
-  --color-border: #e8e6e1;
+  /* Hairline border, tinted to sit on the sage-cream background */
+  --color-border: #e3e8e2;
+  --color-line: #e3e8e2;
 
   /* ── Typography ── */
-  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "DM Serif Display", Georgia, "Times New Roman", serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* ── Border Radius ── */
   --radius-sm: 8px;
@@ -52,17 +55,23 @@
   --radius-xl: 24px;
 
   /* ── Shadows ── */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px rgba(16, 38, 28, 0.05);
+  --shadow-card: 0 1px 2px rgba(16, 38, 28, 0.04), 0 2px 8px rgba(16, 38, 28, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(16, 38, 28, 0.08);
+  --shadow-lg: 0 12px 28px -6px rgba(16, 38, 28, 0.14), 0 2px 6px rgba(16, 38, 28, 0.05);
+  --shadow-xl: 0 24px 48px -12px rgba(16, 38, 28, 0.22);
 
-  /* ── Animations ── */
-  --animate-fade-in: fade-in 0.3s ease-out;
-  --animate-slide-up: slide-up 0.3s ease-out;
-  --animate-slide-in-right: slide-in-right 0.35s ease-out;
-  --animate-spin-slow: spin 1.2s linear infinite;
+  /* ── Motion ── */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-fade-in: fade-in 200ms var(--ease-out);
+  --animate-slide-up: slide-up 220ms var(--ease-out);
+  --animate-pop-in: pop-in 200ms var(--ease-out);
+  --animate-sheet-up: sheet-up 320ms var(--ease-drawer);
+  --animate-slide-in-right: slide-in-right 260ms var(--ease-out);
+  --animate-spin-slow: spin 0.8s linear infinite;
 }
 
 @keyframes fade-in {
@@ -71,32 +80,118 @@
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes splash-bar {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(300%); }
+}
+
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── Base ── */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
 body {
   font-family: var(--font-body);
+  font-feature-settings: "cv11", "ss01";
+  /* Amounts, counts and dates line up in columns everywhere */
+  font-variant-numeric: tabular-nums;
   color: var(--color-charcoal);
   background-color: var(--color-cream);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+/* The serif display face ships in one weight — never let the browser fake-bold it */
+.font-display {
+  font-weight: 400 !important;
+  letter-spacing: -0.012em;
+}
+
+/* Money and counts line up in columns */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Controls: no text selection on long-press, no 300ms tap delay */
+button,
+a,
+[role="button"],
+label {
+  touch-action: manipulation;
+}
+button,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* iOS zooms the page into any input under 16px — keep inputs at 16px on touch screens */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Bottom nav clears the home indicator */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar       { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-charcoal-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-charcoal-muted) 35%, transparent);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-charcoal-muted) 55%, transparent);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
 
 /* ── Focus ring ── */
 *:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: 4px;
+}
+
+/* ── Reduced motion: keep fades, drop movement ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
 }
