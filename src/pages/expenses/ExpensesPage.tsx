@@ -188,7 +188,7 @@ function ExpenseRow({
       {expanded && (
         <div className="border-t border-border px-4 py-3 bg-cream/40 space-y-3">
           <div>
-            <p className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider mb-2">Splits</p>
+            <p className="text-xs font-medium text-charcoal-muted mb-2">Splits</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {expense.splits.map((split) => {
                 const name = getMemberName(split.userId, members);
@@ -410,7 +410,7 @@ function ExpenseModal({
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
-                className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
+                className="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition"
               >
                 {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -795,7 +795,7 @@ export function ExpensesPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-display font-extrabold text-3xl text-charcoal tracking-tight">Expenses</h1>
+          <h1 className="font-display text-[2rem] sm:text-4xl leading-[1.1] text-charcoal">Expenses</h1>
           <p className="text-charcoal-muted mt-1 text-sm">
             {isSinglePersonMode
               ? "Track your personal spending."
@@ -824,7 +824,7 @@ export function ExpensesPage() {
           {/* Balance cards */}
           {!isSinglePersonMode && balancePairs.length > 0 && (
             <section>
-              <h2 className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider mb-3">
+              <h2 className="text-xs font-medium text-charcoal-muted mb-3">
                 Balances
               </h2>
               <div className="space-y-2">
@@ -893,7 +893,7 @@ export function ExpensesPage() {
             <section className="space-y-6">
               {groupedTimeline.map(([date, items]) => (
                 <div key={date}>
-                  <h2 className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider mb-3">
+                  <h2 className="text-xs font-medium text-charcoal-muted mb-3">
                     {formatDate(date)}
                   </h2>
                   <div className="space-y-2">

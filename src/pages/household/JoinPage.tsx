@@ -75,7 +75,7 @@ export function JoinPage() {
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
-      <header className="bg-white border-b border-charcoal-muted/10">
+      <header className="bg-white border-b border-line">
         <div className="max-w-3xl mx-auto px-6 py-4">
           <Logo size="sm" />
         </div>
@@ -84,7 +84,7 @@ export function JoinPage() {
       <main className="flex-1 flex items-start justify-center px-4 pt-12 pb-16">
         <div className="w-full max-w-md animate-fade-in">
           <div className="text-center mb-8">
-            <h1 className="font-display font-extrabold text-3xl text-charcoal tracking-tight">
+            <h1 className="font-display text-[2rem] sm:text-4xl leading-[1.1] text-charcoal">
               Join a Household
             </h1>
             <p className="text-charcoal-muted mt-2 text-sm">
@@ -92,7 +92,7 @@ export function JoinPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg border border-charcoal-muted/10 shadow-sm p-6 space-y-6">
+          <div className="bg-white rounded-2xl border border-line shadow-card p-6 space-y-6">
             {/* Code entry */}
             <form onSubmit={handlePreviewSubmit} className="flex gap-2">
               <Input
@@ -135,7 +135,7 @@ export function JoinPage() {
             )}
 
             {preview && !previewing && (
-              <div className="rounded-lg bg-cream border border-charcoal-muted/10 p-4 animate-slide-up">
+              <div className="rounded-lg bg-cream border border-line p-4 animate-slide-up">
                 <p className="text-xs font-semibold text-charcoal-muted uppercase tracking-wider mb-3">
                   Household Found
                 </p>

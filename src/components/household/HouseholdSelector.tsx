@@ -18,8 +18,15 @@ export function HouseholdSelector() {
         setOpen(false);
       }
     }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
   }, [open]);
 
   async function handleSwitch(id: string) {
@@ -39,15 +46,15 @@ export function HouseholdSelector() {
   if (!activeHousehold) return null;
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className="relative min-w-0">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-charcoal/5 transition-colors max-w-[220px]"
+        className="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-xl hover:bg-cream-dark transition-colors max-w-full sm:max-w-[280px] min-w-0"
         aria-haspopup="listbox"
         aria-expanded={open}
       >
         <HouseholdAvatar id={activeHousehold.id} name={activeHousehold.name} size="sm" />
-        <span className="text-sm font-medium text-charcoal truncate">
+        <span className="text-sm font-semibold text-charcoal truncate">
           {activeHousehold.name}
         </span>
         <svg
@@ -65,9 +72,9 @@ export function HouseholdSelector() {
       </button>
 
       {open && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 bg-white rounded-lg shadow-lg border border-charcoal-muted/10 py-1 z-40 animate-slide-up">
-          <p className="px-3 py-1.5 text-xs font-semibold text-charcoal-muted uppercase tracking-wider">
-            Your Households
+        <div className="absolute top-full left-0 mt-2 w-[min(18rem,calc(100vw-2rem))] bg-white rounded-2xl shadow-lg border border-line p-1.5 z-40 origin-top-left animate-pop-in">
+          <p className="px-3 pt-1.5 pb-2 text-xs font-medium text-charcoal-muted">
+            Your households
           </p>
 
           <ul role="listbox">
@@ -76,7 +83,7 @@ export function HouseholdSelector() {
                 <button
                   onClick={() => handleSwitch(h.id)}
                   disabled={switching === h.id}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-cream transition-colors"
+                  className="w-full flex items-center gap-3 px-2.5 py-2 rounded-xl hover:bg-cream transition-colors"
                 >
                   <HouseholdAvatar id={h.id} name={h.name} size="sm" />
                   <span className="flex-1 text-left text-sm font-medium text-charcoal truncate">
@@ -107,10 +114,10 @@ export function HouseholdSelector() {
             ))}
           </ul>
 
-          <div className="border-t border-charcoal-muted/10 mt-1 pt-1">
+          <div className="border-t border-line mt-1.5 pt-1.5">
             <button
               onClick={() => { setOpen(false); navigate("/onboarding?mode=create"); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-charcoal-light hover:bg-cream hover:text-charcoal transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-charcoal-light hover:bg-cream hover:text-charcoal transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />
@@ -119,7 +126,7 @@ export function HouseholdSelector() {
             </button>
             <button
               onClick={() => { setOpen(false); navigate("/join"); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-charcoal-light hover:bg-cream hover:text-charcoal transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-charcoal-light hover:bg-cream hover:text-charcoal transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />

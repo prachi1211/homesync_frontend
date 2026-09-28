@@ -14,10 +14,10 @@ export function GoogleButton({ onClick, loading, className }: GoogleButtonProps)
       disabled={loading}
       className={cn(
         "w-full flex items-center justify-center gap-3 px-6 py-2.5",
-        "bg-white border border-[#E8E6E1] rounded-xl",
+        "bg-white border border-line rounded-xl",
         "text-charcoal text-sm font-semibold",
         "hover:border-charcoal-muted/40 hover:shadow-sm",
-        "active:scale-[0.98] transition-all duration-200",
+        "active:scale-[0.98] transition duration-200",
         "disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer",
         className
       )}
@@ -51,3 +51,6 @@ export function GoogleButton({ onClick, loading, className }: GoogleButtonProps)
     </button>
   );
 }
+
+// Hidden until Google sign-in is wired up on the backend — set VITE_GOOGLE_CLIENT_ID to show it
+export const GOOGLE_SIGN_IN_ENABLED = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);

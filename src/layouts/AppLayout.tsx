@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, ShoppingBag, CheckSquare, CreditCard, BarChart2,
-  Settings, LogOut, ChevronDown, ChevronLeft, ChevronRight, Home,
+  Settings, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../context/ToastContext";
 import { Logo } from "../components/ui/Logo";
 import { HouseholdSelector } from "../components/household/HouseholdSelector";
+import { cn } from "../utils/cn";
 
 const NAV_ITEMS = [
-  { to: "/dashboard", label: "Dashboard",  Icon: LayoutDashboard },
+  { to: "/dashboard", label: "Home",       Icon: LayoutDashboard },
   { to: "/groceries", label: "Groceries",  Icon: ShoppingBag },
   { to: "/chores",    label: "Chores",     Icon: CheckSquare },
   { to: "/expenses",  label: "Expenses",   Icon: CreditCard },
@@ -22,66 +23,87 @@ function getInitials(name?: string) {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
+function useSignOut() {
+  const { logout } = useAuth();
+  const { addToast } = useToast();
+  const navigate = useNavigate();
+  return () => {
+    logout();
+    navigate("/login", { replace: true });
+    addToast("info", "Signed out");
+  };
+}
+
 // ── User menu (top bar) ───────────────────────────────────────────────────────
 
 function UserMenu() {
-  const { user, logout } = useAuth();
-  const { addToast } = useToast();
+  const { user } = useAuth();
+  const signOut = useSignOut();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    function onDown(e: MouseEvent) {
+    function onDown(e: PointerEvent) {
       if (!ref.current?.contains(e.target as Node)) setOpen(false);
     }
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
-  function handleLogout() {
-    logout();
-    navigate("/login", { replace: true });
-    addToast("info", "Signed out", "You've been logged out.");
-  }
-
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative shrink-0">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-cream-dark transition-colors"
-        aria-label="User menu"
+        className="flex items-center gap-2 rounded-full sm:rounded-xl p-0.5 sm:pl-1 sm:pr-2 sm:py-1 hover:bg-cream-dark transition-colors"
+        aria-label="Account menu"
+        aria-haspopup="menu"
         aria-expanded={open}
       >
-        <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary font-bold text-xs">
+        <span className="w-8 h-8 rounded-full bg-primary text-white grid place-items-center font-semibold text-xs tracking-wide">
           {getInitials(user?.name)}
-        </div>
-        <span className="hidden sm:block text-sm font-medium text-charcoal max-w-[120px] truncate">
+        </span>
+        <span className="hidden sm:block text-sm font-medium text-charcoal max-w-[140px] truncate">
           {user?.name ?? "Account"}
         </span>
-        <ChevronDown size={14} className="text-charcoal-muted hidden sm:block" />
+        <ChevronDown
+          size={14}
+          className={cn("text-charcoal-muted hidden sm:block transition-transform duration-200", open && "rotate-180")}
+        />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-lg border border-[#E8E6E1] py-1 z-10 animate-slide-up">
-          <div className="px-4 py-2.5 border-b border-[#E8E6E1]">
+        <div
+          role="menu"
+          className="absolute right-0 top-full mt-2 w-60 bg-white rounded-2xl shadow-lg border border-line p-1.5 z-10 origin-top-right animate-pop-in"
+        >
+          <div className="px-3 py-2.5 mb-1 border-b border-line">
             <p className="text-sm font-semibold text-charcoal truncate">{user?.name}</p>
             <p className="text-xs text-charcoal-muted truncate">{user?.email}</p>
           </div>
           <button
+            role="menuitem"
             onClick={() => { setOpen(false); navigate("/settings"); }}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-charcoal-light hover:bg-cream hover:text-charcoal transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-charcoal-light hover:bg-cream hover:text-charcoal transition-colors"
           >
-            <Settings size={15} />
+            <Settings size={16} />
             Settings
           </button>
           <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-error hover:bg-error-light transition-colors"
+            role="menuitem"
+            onClick={signOut}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-error hover:bg-error-light transition-colors"
           >
-            <LogOut size={15} />
-            Sign Out
+            <LogOut size={16} />
+            Sign out
           </button>
         </div>
       )}
@@ -89,49 +111,37 @@ function UserMenu() {
   );
 }
 
-// ── Sidebar user section ──────────────────────────────────────────────────────
+// ── Sidebar ──────────────────────────────────────────────────────────────────
+
+const sideLink = (collapsed: boolean) => ({ isActive }: { isActive: boolean }) =>
+  cn(
+    "relative flex items-center h-10 rounded-xl text-sm font-medium transition-colors",
+    collapsed ? "justify-center" : "gap-3 px-3",
+    isActive
+      ? "bg-white/[0.1] text-white before:absolute before:left-0 before:top-2.5 before:bottom-2.5 before:w-[3px] before:rounded-r-full before:bg-[#9fd8b8]"
+      : "text-sidebar-ink/70 hover:bg-white/[0.06] hover:text-white"
+  );
 
 function SidebarUserSection({ collapsed }: { collapsed: boolean }) {
-  const { user, logout } = useAuth();
-  const { addToast } = useToast();
-  const navigate = useNavigate();
-
-  function handleLogout() {
-    logout();
-    navigate("/login", { replace: true });
-    addToast("info", "Signed out", "You've been logged out.");
-  }
-
-  if (collapsed) {
-    return (
-      <div className="flex flex-col items-center gap-2 py-2">
-        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-[#a8e7c5] font-bold text-xs">
-          {getInitials(user?.name)}
-        </div>
-        <button
-          onClick={handleLogout}
-          title="Sign out"
-          className="text-[#6b7280] hover:text-white transition-colors"
-        >
-          <LogOut size={15} />
-        </button>
-      </div>
-    );
-  }
+  const { user } = useAuth();
+  const signOut = useSignOut();
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl">
-      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-[#a8e7c5] font-bold text-xs shrink-0">
+    <div className={cn("flex items-center mt-2 pt-3 border-t border-white/[0.08]", collapsed ? "flex-col gap-2" : "gap-3 px-2")}>
+      <span className="w-8 h-8 rounded-full bg-white/[0.12] text-white grid place-items-center font-semibold text-xs shrink-0">
         {getInitials(user?.name)}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">{user?.name ?? "Account"}</p>
-        <p className="text-xs text-[#6b7280] truncate">{user?.email}</p>
-      </div>
+      </span>
+      {!collapsed && (
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-white truncate">{user?.name ?? "Account"}</p>
+          <p className="text-xs text-sidebar-ink/55 truncate">{user?.email}</p>
+        </div>
+      )}
       <button
-        onClick={handleLogout}
-        className="shrink-0 text-[#6b7280] hover:text-white transition-colors"
+        onClick={signOut}
+        title="Sign out"
         aria-label="Sign out"
+        className="shrink-0 h-8 w-8 grid place-items-center rounded-lg text-sidebar-ink/60 hover:text-white hover:bg-white/[0.08] transition-colors"
       >
         <LogOut size={16} />
       </button>
@@ -142,9 +152,15 @@ function SidebarUserSection({ collapsed }: { collapsed: boolean }) {
 // ── App layout ────────────────────────────────────────────────────────────────
 
 export function AppLayout() {
+  const { pathname } = useLocation();
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem("sidebar_collapsed") === "true"
   );
+
+  // New page starts at the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   function toggleSidebar() {
     setCollapsed((v) => {
@@ -154,43 +170,33 @@ export function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex">
+    <div className="min-h-dvh bg-cream flex">
 
       {/* ── Desktop sidebar ── */}
       <aside
-        className={`hidden lg:flex fixed inset-y-0 left-0 flex-col z-40 bg-[#141414] transition-all duration-200 ${
-          collapsed ? "w-16" : "w-60"
-        }`}
+        className={cn(
+          "hidden lg:flex fixed inset-y-0 left-0 flex-col z-40 bg-sidebar",
+          "transition-[width] duration-200 ease-out",
+          collapsed ? "w-[68px]" : "w-60"
+        )}
       >
-        {/* Logo / icon */}
-        <div className={`py-5 border-b border-white/[0.06] flex items-center ${collapsed ? "justify-center px-0" : "px-5"}`}>
+        <div className={cn("h-16 flex items-center shrink-0", collapsed ? "justify-center" : "px-5")}>
           {collapsed ? (
-            <Home size={22} className="text-[#a8e7c5]" />
+            <svg width="26" height="26" viewBox="0 0 40 40" fill="none" aria-label="HomeSync">
+              <path d="M20 4L4 18H9V34H17V24H23V34H31V18H36L20 4Z" fill="#fff" />
+              <rect x="26" y="8" width="4" height="8" rx="1" fill="rgba(255,255,255,0.65)" />
+            </svg>
           ) : (
             <Logo size="sm" light />
           )}
         </div>
 
-        {/* Navigation */}
-        <nav className={`flex-1 py-4 space-y-0.5 overflow-y-auto ${collapsed ? "px-2" : "px-3"}`}>
+        <nav aria-label="Main" className={cn("flex-1 pt-3 space-y-1 overflow-y-auto", collapsed ? "px-2.5" : "px-3")}>
           {NAV_ITEMS.map(({ to, label, Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              title={collapsed ? label : undefined}
-              className={({ isActive }) =>
-                `flex items-center py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  collapsed ? "justify-center px-0" : "gap-3 px-3"
-                } ${
-                  isActive
-                    ? "bg-primary/20 text-[#a8e7c5]"
-                    : "text-[#9ca3af] hover:bg-white/[0.06] hover:text-white"
-                }`
-              }
-            >
+            <NavLink key={to} to={to} title={collapsed ? label : undefined} className={sideLink(collapsed)}>
               {({ isActive }) => (
                 <>
-                  <Icon size={17} strokeWidth={isActive ? 2.2 : 1.8} />
+                  <Icon size={18} strokeWidth={isActive ? 2.1 : 1.8} />
                   {!collapsed && label}
                 </>
               )}
@@ -198,96 +204,86 @@ export function AppLayout() {
           ))}
         </nav>
 
-        {/* Bottom: collapse toggle + settings + user */}
-        <div className={`pb-4 border-t border-white/[0.06] pt-3 space-y-0.5 ${collapsed ? "px-2" : "px-3"}`}>
-
-          {/* Collapse toggle */}
-          <button
-            onClick={toggleSidebar}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className={`w-full flex items-center py-2.5 rounded-xl text-[#6b7280] hover:bg-white/[0.06] hover:text-white transition-all ${
-              collapsed ? "justify-center px-0" : "gap-3 px-3"
-            }`}
-          >
-            {collapsed ? <ChevronRight size={17} /> : (
-              <>
-                <ChevronLeft size={17} />
-                <span className="text-sm font-medium">Collapse</span>
-              </>
-            )}
-          </button>
-
-          {/* Settings */}
-          <NavLink
-            to="/settings"
-            title={collapsed ? "Settings" : undefined}
-            className={({ isActive }) =>
-              `flex items-center py-2.5 rounded-xl text-sm font-medium transition-all ${
-                collapsed ? "justify-center px-0" : "gap-3 px-3"
-              } ${
-                isActive
-                  ? "bg-primary/20 text-[#a8e7c5]"
-                  : "text-[#9ca3af] hover:bg-white/[0.06] hover:text-white"
-              }`
-            }
-          >
+        <div className={cn("pb-4 pt-2 space-y-1", collapsed ? "px-2.5" : "px-3")}>
+          <NavLink to="/settings" title={collapsed ? "Settings" : undefined} className={sideLink(collapsed)}>
             {({ isActive }) => (
               <>
-                <Settings size={17} strokeWidth={isActive ? 2.2 : 1.8} />
+                <Settings size={18} strokeWidth={isActive ? 2.1 : 1.8} />
                 {!collapsed && "Settings"}
               </>
             )}
           </NavLink>
+          <button
+            onClick={toggleSidebar}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className={cn(
+              "w-full flex items-center h-10 rounded-xl text-sm font-medium text-sidebar-ink/60 hover:bg-white/[0.06] hover:text-white transition-colors",
+              collapsed ? "justify-center" : "gap-3 px-3"
+            )}
+          >
+            {collapsed ? <PanelLeftOpen size={18} /> : <><PanelLeftClose size={18} /> Collapse</>}
+          </button>
 
           <SidebarUserSection collapsed={collapsed} />
         </div>
       </aside>
 
       {/* ── Main column ── */}
-      {/* z-50 on header so dropdowns inside it appear above the sidebar */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-200 ${collapsed ? "lg:ml-16" : "lg:ml-60"}`}>
+      <div
+        className={cn(
+          "flex-1 min-w-0 flex flex-col min-h-dvh transition-[margin] duration-200 ease-out",
+          collapsed ? "lg:ml-[68px]" : "lg:ml-60"
+        )}
+      >
+        {/* Top bar — z-50 so the household dropdown sits above the sidebar */}
+        <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-line pt-[env(safe-area-inset-top)]">
+          <div className="px-4 sm:px-6 h-14 lg:h-16 flex items-center gap-2 sm:gap-4">
+            {/* Mobile mark */}
+            <svg className="lg:hidden shrink-0" width="26" height="26" viewBox="0 0 40 40" fill="none" aria-label="HomeSync">
+              <path d="M20 4L4 18H9V34H17V24H23V34H31V18H36L20 4Z" fill="#0f5238" />
+              <rect x="26" y="8" width="4" height="8" rx="1" fill="#0a3d29" />
+              <rect x="17" y="17" width="6" height="5" rx="1" fill="#edf7f0" />
+            </svg>
 
-        {/* Top bar — z-50 so HouseholdSelector dropdown sits above the sidebar */}
-        <header className="sticky top-0 z-50 bg-white border-b border-[#E8E6E1]">
-          <div className="px-4 sm:px-6 h-14 flex items-center gap-4">
-            {/* Mobile logo */}
-            <div className="lg:hidden shrink-0">
-              <Logo size="sm" />
-            </div>
-
-            {/* Household selector */}
             <div className="flex-1 flex items-center min-w-0">
               <HouseholdSelector />
             </div>
 
-            {/* User menu */}
             <UserMenu />
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 px-4 sm:px-6 py-6 pb-24 lg:pb-8 max-w-5xl mx-auto w-full">
+        <main
+          key={pathname}
+          className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-12 animate-fade-in"
+        >
           <Outlet />
         </main>
       </div>
 
       {/* ── Mobile bottom nav ── */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-[#E8E6E1] z-40 safe-area-pb">
-        <div className="flex items-center justify-around px-1 pt-1 pb-2">
+      <nav
+        aria-label="Main"
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/92 backdrop-blur-md border-t border-line safe-area-pb"
+      >
+        <div className="grid grid-cols-5 px-1">
           {NAV_ITEMS.map(({ to, label, Icon }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl min-w-0 transition-colors ${
+                cn(
+                  "relative flex flex-col items-center justify-center gap-1 h-16 min-w-0 transition-colors active:bg-cream-dark/60",
                   isActive ? "text-primary" : "text-charcoal-muted"
-                }`
+                )
               }
             >
               {({ isActive }) => (
                 <>
+                  {isActive && <span className="absolute top-0 h-[3px] w-8 rounded-b-full bg-primary" aria-hidden="true" />}
                   <Icon size={21} strokeWidth={isActive ? 2.2 : 1.7} />
-                  <span className="text-[10px] font-semibold leading-none">{label}</span>
+                  <span className={cn("text-[11px] leading-none truncate", isActive ? "font-semibold" : "font-medium")}>{label}</span>
                 </>
               )}
             </NavLink>

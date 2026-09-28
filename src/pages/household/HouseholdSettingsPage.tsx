@@ -102,12 +102,12 @@ export function HouseholdSettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-fade-in">
-      <h1 className="font-display font-extrabold text-3xl text-charcoal tracking-tight">
+      <h1 className="font-display text-[2rem] sm:text-4xl leading-[1.1] text-charcoal">
         Household Settings
       </h1>
 
       {/* Household name */}
-      <section className="bg-white rounded-2xl border border-charcoal-muted/10 shadow-sm p-6">
+      <section className="bg-white rounded-2xl border border-line shadow-sm p-6">
         <h2 className="text-lg font-semibold text-charcoal mb-5">Household</h2>
 
         <div className="flex items-center gap-4 mb-6">
@@ -164,7 +164,7 @@ export function HouseholdSettingsPage() {
       </section>
 
       {/* Invite code */}
-      <section className="bg-white rounded-2xl border border-charcoal-muted/10 shadow-sm p-6">
+      <section className="bg-white rounded-2xl border border-line shadow-sm p-6">
         <h2 className="text-lg font-semibold text-charcoal mb-5">Invite Code</h2>
         <p className="text-sm text-charcoal-muted mb-4">
           Share this code to invite others to your household.
@@ -173,7 +173,7 @@ export function HouseholdSettingsPage() {
       </section>
 
       {/* Members */}
-      <section className="bg-white rounded-2xl border border-charcoal-muted/10 shadow-sm p-6">
+      <section className="bg-white rounded-2xl border border-line shadow-sm p-6">
         <h2 className="text-lg font-semibold text-charcoal mb-2">
           Members ({members.length})
         </h2>

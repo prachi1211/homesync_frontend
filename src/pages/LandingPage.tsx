@@ -33,8 +33,8 @@ function GroceryMock() {
           { name: "Free Range Eggs", qty: "×12", done: false, badge: "HIGH" },
           { name: "Greek Yoghurt", qty: null, done: false, badge: "MED" },
         ].map(({ name, qty, done, badge }) => (
-          <div key={name} className={`flex items-center gap-2.5 py-1.5 border-b border-[#E8E6E1] last:border-0 ${done ? "opacity-50" : ""}`}>
-            <div className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border ${done ? "bg-sage border-sage" : "border-[#E8E6E1]"}`}>
+          <div key={name} className={`flex items-center gap-2.5 py-1.5 border-b border-line last:border-0 ${done ? "opacity-50" : ""}`}>
+            <div className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border ${done ? "bg-sage border-sage" : "border-line"}`}>
               {done && <Check size={10} className="text-white" />}
             </div>
             <span className={`text-xs flex-1 ${done ? "line-through text-charcoal-muted" : "text-charcoal"}`}>{name}</span>
@@ -137,8 +137,8 @@ function GroceryFeatureMock() {
       </div>
       <div className="space-y-3">
         {items.map(({ name, cat, badge, done, star }) => (
-          <div key={name} className={`flex items-center gap-3 pb-3 border-b border-[#E8E6E1] last:border-0 ${done ? "opacity-40" : ""}`}>
-            <div className={`w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border-2 ${done ? "bg-sage border-sage" : "border-[#E8E6E1]"}`}>
+          <div key={name} className={`flex items-center gap-3 pb-3 border-b border-line last:border-0 ${done ? "opacity-40" : ""}`}>
+            <div className={`w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border-2 ${done ? "bg-sage border-sage" : "border-line"}`}>
               {done && <Check size={11} className="text-white" />}
             </div>
             {star && <span className="text-warning text-xs">★</span>}
@@ -229,7 +229,7 @@ function ExpenseFeatureMock() {
           { desc: "Electricity Bill", cat: "Utilities", amt: "$89.00", split: "Equal" },
           { desc: "Netflix & Spotify", cat: "Entertainment", amt: "$28.00", split: "3 ways" },
         ].map(({ desc, cat, amt, split }) => (
-          <div key={desc} className="flex items-center gap-3 py-2 border-b border-[#E8E6E1] last:border-0">
+          <div key={desc} className="flex items-center gap-3 py-2 border-b border-line last:border-0">
             <div className="w-8 h-8 bg-cream-dark rounded-xl flex items-center justify-center flex-shrink-0">
               <DollarSign size={14} className="text-charcoal-light" />
             </div>
@@ -286,7 +286,7 @@ function AnalyticsFeatureMock() {
           </div>
         ))}
       </div>
-      <div className="border-t border-[#E8E6E1] pt-4 mt-4">
+      <div className="border-t border-line pt-4 mt-4">
         <p className="text-xs font-semibold text-charcoal mb-3">This month by category</p>
         <div className="grid grid-cols-2 gap-2">
           {cats.map(({ name, pct, color }) => (
@@ -412,7 +412,7 @@ export function LandingPage() {
       `}</style>
 
       {/* ── Navbar ── */}
-      <nav className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-[#E8E6E1]">
+      <nav className="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-line">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Logo size="md" />
           <div className="flex items-center gap-2">
@@ -440,7 +440,7 @@ export function LandingPage() {
         <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left */}
           <div>
-            <div className="fade-up inline-flex items-center gap-2 bg-white border border-[#E8E6E1] text-charcoal-light text-sm font-medium px-4 py-2 rounded-full mb-8 shadow-sm">
+            <div className="fade-up inline-flex items-center gap-2 bg-white border border-line text-charcoal-light text-sm font-medium px-4 py-2 rounded-full mb-8 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-sage" />
               Free for every household · No credit card
             </div>
@@ -466,7 +466,7 @@ export function LandingPage() {
               </Link>
               <button
                 onClick={() => scrollTo("features")}
-                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-cream-dark text-charcoal font-semibold px-8 py-4 rounded-xl text-base transition-all border border-[#E8E6E1] hover:border-primary/30"
+                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-cream-dark text-charcoal font-semibold px-8 py-4 rounded-xl text-base transition-all border border-line hover:border-primary/30"
               >
                 See how it works
               </button>
@@ -611,7 +611,7 @@ export function LandingPage() {
                   {quote}
                   <span className="text-3xl text-primary-light font-serif leading-none ml-1">"</span>
                 </p>
-                <div className="flex items-center gap-3 pt-5 border-t border-[#E8E6E1]">
+                <div className="flex items-center gap-3 pt-5 border-t border-line">
                   <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center flex-shrink-0`}>
                     <span className="text-white font-bold text-sm">{initial}</span>
                   </div>

@@ -29,9 +29,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       const toast: Toast = { id, type, title, message };
       setToasts((prev) => [...prev, toast]);
 
+      // Errors carry instructions — give people time to read them
       setTimeout(() => {
         removeToast(id);
-      }, 4000);
+      }, type === "error" ? 6500 : 3500);
     },
     [removeToast]
   );

@@ -69,7 +69,7 @@ export function InviteCodeDisplay() {
           Shareable Link
         </p>
         <div className="flex items-center gap-3 flex-wrap">
-          <code className="text-xs text-charcoal-muted bg-cream-dark border border-charcoal-muted/10 rounded px-3 py-2 break-all">
+          <code className="text-xs text-charcoal-muted bg-cream-dark border border-line rounded px-3 py-2 break-all">
             {shareUrl}
           </code>
           <CopyButton text={shareUrl} label="Copy Link" />

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthLayout } from "../../components/auth/AuthLayout";
-import { GoogleButton } from "../../components/auth/GoogleButton";
+import { GoogleButton, GOOGLE_SIGN_IN_ENABLED } from "../../components/auth/GoogleButton";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
@@ -119,13 +119,16 @@ export function RegisterPage() {
         </Button>
       </form>
 
-      <div className="my-6 flex items-center gap-4">
-        <div className="flex-1 h-px bg-charcoal-muted/20" />
-        <span className="text-sm text-charcoal-muted">or</span>
-        <div className="flex-1 h-px bg-charcoal-muted/20" />
-      </div>
-
-      <GoogleButton onClick={handleGoogle} loading={googleLoading} />
+      {GOOGLE_SIGN_IN_ENABLED && (
+        <>
+          <div className="my-6 flex items-center gap-4">
+            <div className="flex-1 h-px bg-line" />
+            <span className="text-sm text-charcoal-muted">or</span>
+            <div className="flex-1 h-px bg-line" />
+          </div>
+          <GoogleButton onClick={handleGoogle} loading={googleLoading} />
+        </>
+      )}
 
       <p className="text-center text-sm text-charcoal-light mt-8">
         Already have an account?{" "}

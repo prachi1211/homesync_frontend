@@ -68,7 +68,7 @@ function PriorityBadge({ priority }: { priority: Priority | null }) {
   return (
     <span className="flex items-center gap-1">
       <span className={`w-1.5 h-1.5 rounded-full ${getPriorityDot(priority)}`} />
-      <span className={`text-[10px] font-bold uppercase ${getPriorityText(priority)}`}>
+      <span className={`text-xs font-medium ${getPriorityText(priority)}`}>
         {priority}
       </span>
     </span>
@@ -88,7 +88,7 @@ function StarButton({
     <button
       onClick={onClick}
       aria-label={starred ? "Unstar item" : "Star item"}
-      className={`p-1.5 rounded-md transition-all ${
+      className={`p-1.5 rounded-lg transition ${
         starred
           ? "text-warning hover:text-warning/70"
           : "text-charcoal-muted/25 hover:text-warning/60"
@@ -124,12 +124,12 @@ function FilterDropdown<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="relative">
+    <div className="relative shrink-0">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
         aria-label={label}
-        className="appearance-none pl-3 pr-7 py-2 rounded-md border border-charcoal-muted/20 bg-white text-charcoal text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer hover:border-charcoal-muted/40"
+        className="appearance-none pl-3 pr-7 py-2 rounded-lg border border-line bg-white text-charcoal text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition cursor-pointer hover:border-charcoal-muted/40"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -161,14 +161,14 @@ function SelectField({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider ml-0.5">
+      <label className="block text-xs font-medium text-charcoal-muted">
         {label}
       </label>
       <div className="relative">
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none px-3.5 py-2.5 pr-8 rounded-md border border-charcoal-muted/25 hover:border-charcoal-muted/40 bg-white text-charcoal text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+          className="w-full appearance-none px-3.5 py-2.5 pr-8 rounded-lg border border-line hover:border-charcoal-muted/40 bg-white text-charcoal text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -250,7 +250,7 @@ function EditItemModal({
             type="submit"
             form="edit-item-form"
             disabled={saving}
-            className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-md hover:bg-primary-hover transition-all shadow-sm disabled:opacity-60 flex items-center gap-2"
+            className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition shadow-sm disabled:opacity-60 flex items-center gap-2"
           >
             {saving ? (
               <>
@@ -270,7 +270,7 @@ function EditItemModal({
       <form id="edit-item-form" onSubmit={handleSubmit} className="space-y-4">
         {/* Name */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider ml-0.5">
+          <label className="block text-xs font-medium text-charcoal-muted">
             Item Name
           </label>
           <input
@@ -280,10 +280,10 @@ function EditItemModal({
               setForm((p) => ({ ...p, name: e.target.value }));
               if (nameError) setNameError(null);
             }}
-            className={`w-full px-3.5 py-2.5 rounded-md border bg-white text-charcoal text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
+            className={`w-full px-3.5 py-2.5 rounded-xl border bg-white text-charcoal text-sm transition focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
               nameError
                 ? "border-error ring-1 ring-error/20"
-                : "border-charcoal-muted/25 hover:border-charcoal-muted/40"
+                : "border-line hover:border-charcoal-muted/40"
             }`}
           />
           {nameError && (
@@ -293,7 +293,7 @@ function EditItemModal({
 
         {/* Qty */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider ml-0.5">
+          <label className="block text-xs font-medium text-charcoal-muted">
             Quantity
           </label>
           <input
@@ -303,7 +303,7 @@ function EditItemModal({
             onChange={(e) =>
               setForm((p) => ({ ...p, qty: Math.max(1, Number(e.target.value)) }))
             }
-            className="w-full px-3.5 py-2.5 rounded-md border border-charcoal-muted/25 hover:border-charcoal-muted/40 bg-white text-charcoal font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-line hover:border-charcoal-muted/40 bg-white text-charcoal font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
           />
         </div>
 
@@ -324,7 +324,7 @@ function EditItemModal({
 
         {/* Notes */}
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider ml-0.5">
+          <label className="block text-xs font-medium text-charcoal-muted">
             Notes <span className="normal-case font-medium">(optional)</span>
           </label>
           <textarea
@@ -332,7 +332,7 @@ function EditItemModal({
             onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
             placeholder="Add any details, brand preferences, etc."
             rows={3}
-            className="w-full px-3.5 py-2.5 rounded-md border border-charcoal-muted/25 hover:border-charcoal-muted/40 bg-white text-charcoal text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-charcoal-muted/40"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-line hover:border-charcoal-muted/40 bg-white text-charcoal text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition placeholder:text-charcoal-muted/40"
           />
         </div>
       </form>
@@ -357,18 +357,18 @@ function ItemRow({
 }) {
   return (
     <div
-      className={`flex items-center justify-between px-4 py-3.5 hover:bg-cream transition-colors group ${
+      className={`flex items-center gap-2 pl-4 pr-2 py-3 min-h-14 hover:bg-cream/70 transition-colors group ${
         item.isBought ? "opacity-45" : ""
       }`}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex flex-1 items-center gap-3 min-w-0">
         {/* Checkbox */}
         <div className="relative flex items-center shrink-0">
           <input
             type="checkbox"
             checked={item.isBought}
             onChange={() => onToggle(item.id)}
-            className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-charcoal-muted/30 bg-white transition-all checked:border-primary checked:bg-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="peer h-5 w-5 cursor-pointer appearance-none rounded-lg border border-charcoal-muted/30 bg-white transition checked:border-primary checked:bg-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
           <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity">
             <svg className="h-3 w-3 fill-current" viewBox="0 0 20 20">
@@ -378,22 +378,26 @@ function ItemRow({
         </div>
 
         {/* Name, meta, notes */}
-        <div className="flex flex-col gap-0.5 min-w-0">
+        <div className="flex flex-col gap-0.5 min-w-0 flex-1">
           <span
-            className={`font-semibold text-sm transition-all ${
+            className={`font-medium text-[15px] leading-snug transition ${
               item.isBought ? "line-through text-charcoal-muted" : "text-charcoal"
             }`}
           >
             {item.name}
           </span>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-1.5 py-0.5 bg-cream-dark rounded text-[10px] font-bold text-charcoal-muted uppercase tracking-tight">
-              ×{item.qty}
-            </span>
-            <PriorityBadge priority={item.priority} />
-          </div>
+          {(item.qty > 1 || item.priority) && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {item.qty > 1 && (
+                <span className="px-1.5 py-px bg-cream-dark rounded-md text-xs font-medium text-charcoal-light tabular">
+                  ×{item.qty}
+                </span>
+              )}
+              <PriorityBadge priority={item.priority} />
+            </div>
+          )}
           {item.notes && (
-            <p className="text-xs text-charcoal-muted/70 italic mt-0.5 truncate max-w-xs">
+            <p className="text-xs text-charcoal-muted mt-0.5 truncate">
               {item.notes}
             </p>
           )}
@@ -404,12 +408,12 @@ function ItemRow({
       <div className="flex items-center gap-0.5 shrink-0 ml-2">
         <StarButton starred={item.starred} onClick={() => onStar(item.id)} />
 
-        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+        <div className="flex items-center gap-0.5 transition-opacity [@media(hover:hover)]:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100">
           {/* Edit */}
           <button
             onClick={() => onEdit(item)}
             aria-label={`Edit ${item.name}`}
-            className="p-2 text-charcoal-muted/50 hover:text-primary hover:bg-primary-light rounded-lg transition-all"
+            className="p-2 text-charcoal-muted/50 hover:text-primary hover:bg-primary-light rounded-lg transition"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -421,7 +425,7 @@ function ItemRow({
           <button
             onClick={() => onDelete(item)}
             aria-label={`Remove ${item.name}`}
-            className="p-2 text-charcoal-muted/50 hover:text-error hover:bg-error-light rounded-lg transition-all"
+            className="p-2 text-charcoal-muted/50 hover:text-error hover:bg-error-light rounded-lg transition"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" />
@@ -460,7 +464,7 @@ function RecentlyBought({
   if (recent.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-lg border border-charcoal-muted/10 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-line shadow-card overflow-hidden">
       <button
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-cream transition-colors"
@@ -492,7 +496,7 @@ function RecentlyBought({
       </button>
 
       {open && (
-        <div className="border-t border-charcoal-muted/5 divide-y divide-charcoal-muted/5">
+        <div className="border-t border-line divide-y divide-line">
           {recent.map((item) => (
             <div
               key={item.id}
@@ -514,7 +518,7 @@ function RecentlyBought({
               </div>
               <button
                 onClick={() => onRestore(item.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary-light hover:bg-primary hover:text-white rounded-md transition-all shrink-0 ml-3"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary-light hover:bg-primary hover:text-white rounded-lg transition shrink-0 ml-3"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
@@ -743,11 +747,13 @@ export function GroceryPage() {
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <h1 className="font-display font-extrabold text-3xl text-charcoal tracking-tight">
+          <h1 className="font-display text-[2rem] sm:text-4xl leading-[1.1] text-charcoal">
             Groceries
           </h1>
-          <p className="text-charcoal-muted mt-1">
-            {unboughtCount > 0
+          <p className="text-charcoal-muted mt-1.5">
+            {isLoading && items.length === 0
+              ? "Loading your list…"
+              : unboughtCount > 0
               ? `${unboughtCount} item${unboughtCount === 1 ? "" : "s"} left to buy`
               : items.length > 0
               ? "All done — nothing left to buy!"
@@ -771,83 +777,19 @@ export function GroceryPage() {
         )}
       </header>
 
-      {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-2">
-        <FilterDropdown<StatusFilter>
-          label="Status filter"
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={[
-            { value: "All", label: "All Items" },
-            { value: "Unbought", label: "Unbought" },
-            { value: "Bought", label: "Bought" },
-          ]}
-        />
-
-        <FilterDropdown<PriorityFilter>
-          label="Priority filter"
-          value={priorityFilter}
-          onChange={setPriorityFilter}
-          options={[
-            { value: "All", label: "All Priorities" },
-            { value: "High", label: "High Priority" },
-            { value: "Medium", label: "Medium Priority" },
-            { value: "Low", label: "Low Priority" },
-          ]}
-        />
-
-        {/* Starred toggle */}
-        <button
-          onClick={() => setStarredOnly((v) => !v)}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-semibold transition-all ${
-            starredOnly
-              ? "bg-warning/10 border-warning/30 text-warning"
-              : "bg-white border-charcoal-muted/20 text-charcoal-muted hover:border-charcoal-muted/40 hover:text-charcoal"
-          }`}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill={starredOnly ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-          Starred
-        </button>
-
-        {/* Reset */}
-        {activeFilterCount > 0 && (
-          <button
-            onClick={resetFilters}
-            className="flex items-center gap-1 text-sm text-charcoal-muted hover:text-charcoal transition-colors ml-1"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-            Clear filters
-            <span className="ml-0.5 text-xs bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center font-bold">
-              {activeFilterCount}
-            </span>
-          </button>
-        )}
-      </div>
 
       {/* Add item form */}
-      <section className="bg-white rounded-lg border border-charcoal-muted/10 shadow-sm p-5 space-y-3">
-        <h3 className="text-xs font-bold text-charcoal-muted uppercase tracking-widest">
-          Add Item
-        </h3>
+      <section className="bg-white rounded-2xl border border-line shadow-card p-4 sm:p-5 space-y-3">
+        <h2 className="text-[15px] font-semibold text-charcoal">
+          Add an item
+        </h2>
 
         <form onSubmit={handleAdd} className="space-y-3">
           {/* Row 1: main fields */}
-          <div className="flex flex-wrap gap-3 items-end">
+          <div className="grid grid-cols-[4.5rem_1fr_1fr] sm:flex sm:flex-wrap gap-3 sm:items-end">
             {/* Name */}
-            <div className="flex-1 min-w-[180px] space-y-1">
-              <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider ml-0.5">
+            <div className="col-span-3 sm:flex-1 sm:min-w-[200px] space-y-1.5">
+              <label className="block text-xs font-medium text-charcoal-muted">
                 Item Name
               </label>
               <input
@@ -858,12 +800,12 @@ export function GroceryPage() {
                   setForm((prev) => ({ ...prev, name: e.target.value }));
                   if (nameError) setNameError(null);
                 }}
-                className={`w-full px-3.5 py-2.5 rounded-md border bg-white text-charcoal text-sm placeholder:text-charcoal-muted/50 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
+                className={`w-full px-3.5 py-2.5 rounded-xl border bg-white text-charcoal text-sm placeholder:text-charcoal-muted/50 transition focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
                   nameError
                     ? "border-error ring-1 ring-error/20"
                     : duplicateItem
                     ? "border-warning ring-1 ring-warning/20"
-                    : "border-charcoal-muted/25 hover:border-charcoal-muted/40"
+                    : "border-line hover:border-charcoal-muted/40"
                 }`}
               />
               {nameError && (
@@ -882,8 +824,8 @@ export function GroceryPage() {
             </div>
 
             {/* Qty */}
-            <div className="w-20 space-y-1">
-              <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider ml-0.5">
+            <div className="sm:w-20 space-y-1.5 min-w-0">
+              <label className="block text-xs font-medium text-charcoal-muted">
                 Qty
               </label>
               <input
@@ -893,12 +835,12 @@ export function GroceryPage() {
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, qty: Math.max(1, Number(e.target.value)) }))
                 }
-                className="w-full px-3.5 py-2.5 rounded-md border border-charcoal-muted/25 hover:border-charcoal-muted/40 bg-white text-charcoal font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-line hover:border-charcoal-muted/40 bg-white text-charcoal font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
               />
             </div>
 
             {/* Category */}
-            <div className="flex-1 min-w-[140px]">
+            <div className="sm:flex-1 sm:min-w-[140px] min-w-0">
               <SelectField
                 label="Category"
                 value={form.category}
@@ -908,7 +850,7 @@ export function GroceryPage() {
             </div>
 
             {/* Priority (optional) */}
-            <div className="w-36">
+            <div className="sm:w-36 min-w-0">
               <SelectField
                 label="Priority (optional)"
                 value={form.priority ?? ""}
@@ -923,7 +865,7 @@ export function GroceryPage() {
             <button
               type="submit"
               disabled={adding}
-              className="px-6 py-2.5 bg-primary text-white rounded-md font-semibold text-sm hover:bg-primary-hover transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
+              className="col-span-3 sm:col-auto h-11 px-6 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-hover active:scale-[0.97] transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shrink-0"
             >
               {adding ? (
                 <>
@@ -960,7 +902,7 @@ export function GroceryPage() {
               placeholder="Add a note (optional) — brand, size, store preference…"
               value={form.notes}
               onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
-              className="flex-1 px-3.5 py-2 rounded-md border border-charcoal-muted/20 bg-cream text-charcoal text-sm placeholder:text-charcoal-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"
+              className="flex-1 px-3.5 py-2 rounded-xl border border-line bg-cream text-charcoal text-sm placeholder:text-charcoal-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition"
             />
           </div>
         </form>
@@ -969,7 +911,7 @@ export function GroceryPage() {
       {/* Quick-add bar */}
       <div className="bg-primary-light rounded-lg border border-primary/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="text-primary bg-white p-1.5 rounded-md shadow-sm">
+          <span className="text-primary bg-white p-1.5 rounded-lg shadow-sm">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
               <path d="M3 6h18" />
@@ -988,12 +930,77 @@ export function GroceryPage() {
             <button
               key={item.name}
               onClick={() => handleQuickAdd(item)}
-              className="px-3 py-1.5 bg-white rounded-full text-xs font-bold border border-primary/15 text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+              className="px-3 py-1.5 bg-white rounded-full text-xs font-bold border border-primary/15 text-primary hover:bg-primary hover:text-white transition shadow-sm"
             >
               {item.name} +
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Filter bar */}
+      <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <FilterDropdown<StatusFilter>
+          label="Status filter"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={[
+            { value: "All", label: "All Items" },
+            { value: "Unbought", label: "Unbought" },
+            { value: "Bought", label: "Bought" },
+          ]}
+        />
+
+        <FilterDropdown<PriorityFilter>
+          label="Priority filter"
+          value={priorityFilter}
+          onChange={setPriorityFilter}
+          options={[
+            { value: "All", label: "All Priorities" },
+            { value: "High", label: "High Priority" },
+            { value: "Medium", label: "Medium Priority" },
+            { value: "Low", label: "Low Priority" },
+          ]}
+        />
+
+        {/* Starred toggle */}
+        <button
+          onClick={() => setStarredOnly((v) => !v)}
+          className={`shrink-0 flex items-center gap-1.5 h-9 px-3.5 rounded-full border text-sm font-medium transition ${
+            starredOnly
+              ? "bg-warning/10 border-warning/30 text-warning"
+              : "bg-white border-line text-charcoal-muted hover:border-charcoal-muted/40 hover:text-charcoal"
+          }`}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill={starredOnly ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          Starred
+        </button>
+
+        {/* Reset */}
+        {activeFilterCount > 0 && (
+          <button
+            onClick={resetFilters}
+            className="shrink-0 flex items-center gap-1 h-9 px-2 text-sm text-charcoal-muted hover:text-charcoal transition-colors"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+            Clear filters
+            <span className="ml-0.5 text-xs bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              {activeFilterCount}
+            </span>
+          </button>
+        )}
       </div>
 
       {/* Item list */}
@@ -1032,14 +1039,14 @@ export function GroceryPage() {
             return (
               <div key={cat} className="space-y-2">
                 <div className="flex items-center justify-between px-1">
-                  <h3 className="text-xs font-extrabold text-charcoal-muted uppercase tracking-widest">
+                  <h3 className="text-[13px] font-semibold text-charcoal-muted">
                     {cat}
                   </h3>
-                  <span className="text-[10px] font-bold text-charcoal-muted/50 uppercase">
+                  <span className="text-xs text-charcoal-muted tabular">
                     {catItems.length} {catItems.length === 1 ? "item" : "items"}
                   </span>
                 </div>
-                <div className="bg-white rounded-lg border border-charcoal-muted/10 shadow-sm overflow-hidden divide-y divide-charcoal-muted/5">
+                <div className="bg-white rounded-2xl border border-line shadow-card overflow-hidden divide-y divide-line">
                   {catItems.map((item) => (
                     <ItemRow
                       key={item.id}

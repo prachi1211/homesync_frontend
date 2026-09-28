@@ -7,7 +7,7 @@ import { useToast } from "../../context/ToastContext";
 import { Modal, ConfirmModal } from "../../components/ui/Modal";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { cn } from "../../utils/cn";
-import { getFrequencyDays } from "../../services/chore.service";
+import { getDisplayStatus, getUserStatus, isChoreEnded } from "../../utils/choreStatus";
 import type {
   AddChorePayload,
   AssignmentType,
@@ -22,119 +22,6 @@ import type {
 import type { HouseholdMember } from "../../types/household.types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-/**
- * Status for Fixed / Personal chores: based on whether THIS user completed it
- * within the frequency window.
- */
-function computeStatus(
-  choreId: string,
-  targetUserId: string,
-  frequency: ChoreFrequency,
-  completions: ChoreCompletionLog[],
-  deadline?: string | null
-): ChoreStatus {
-  const today = new Date().toISOString().slice(0, 10);
-
-  if (deadline) {
-    const completedAfterDeadline = completions.some(
-      (c) => c.choreId === choreId && c.completedBy === targetUserId && c.completedAt.slice(0, 10) >= deadline
-    );
-    if (completedAfterDeadline) return "Completed";
-    return today > deadline ? "Overdue" : "Pending";
-  }
-
-  const logs = completions
-    .filter((c) => c.choreId === choreId && c.completedBy === targetUserId)
-    .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
-  if (logs.length === 0) return "Pending";
-  const daysSince =
-    (Date.now() - new Date(logs[0].completedAt).getTime()) / (1000 * 60 * 60 * 24);
-  return daysSince <= getFrequencyDays(frequency) ? "Completed" : "Overdue";
-}
-
-/**
- * Status for Rotating chores. Key rule: the current assignee is "Completed"
- * only when their most recent completion is newer than every other participant's
- * most recent completion (i.e. they completed it *this* cycle). Otherwise the
- * clock is measured from the last completion by anyone.
- *
- * This fixes the cycle-wrap bug where old completion logs from a previous
- * rotation cycle would falsely show "Completed" for the returning assignee.
- */
-function computeRotatingStatus(
-  chore: Chore,
-  completions: ChoreCompletionLog[]
-): ChoreStatus {
-  const assigneeId = chore.currentAssigneeId;
-  if (!assigneeId) return "Pending";
-
-  const today = new Date().toISOString().slice(0, 10);
-
-  // Deadline overrides normal frequency logic
-  if (chore.deadline) {
-    const completedAfterDeadline = completions.some(
-      (c) => c.choreId === chore.id && c.completedBy === assigneeId && c.completedAt.slice(0, 10) >= chore.deadline!
-    );
-    if (completedAfterDeadline) return "Completed";
-    return today > chore.deadline ? "Overdue" : "Pending";
-  }
-
-  // All completion logs for this chore, newest first
-  const allLogs = completions
-    .filter((c) => c.choreId === chore.id)
-    .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
-
-  if (allLogs.length === 0) return "Pending";
-
-  const mostRecent = allLogs[0];
-
-  // If the very latest completion is by the current assignee, they've done their turn.
-  if (mostRecent.completedBy === assigneeId) return "Completed";
-
-  // Current assignee hasn't completed it yet — check if they're overdue.
-  // "Overdue" = more than one frequency period has elapsed since the last completion.
-  const daysSinceLast =
-    (Date.now() - new Date(mostRecent.completedAt).getTime()) / (1000 * 60 * 60 * 24);
-  return daysSinceLast > getFrequencyDays(chore.frequency) ? "Overdue" : "Pending";
-}
-
-function getDisplayStatus(
-  chore: Chore,
-  viewingUserId: string,
-  completions: ChoreCompletionLog[]
-): ChoreStatus {
-  if (chore.assignmentType === "Rotating") {
-    return computeRotatingStatus(chore, completions);
-  }
-  const targetUserId =
-    chore.assignmentType === "Fixed" ? viewingUserId : chore.createdBy;
-  return computeStatus(chore.id, targetUserId, chore.frequency, completions, chore.deadline);
-}
-
-function isChoreEnded(chore: Chore): boolean {
-  if (!chore.endDate) return false;
-  return new Date().toISOString().slice(0, 10) > chore.endDate;
-}
-
-function getUserStatus(
-  chore: Chore,
-  userId: string,
-  completions: ChoreCompletionLog[]
-): ChoreStatus | null {
-  if (chore.assignmentType === "Rotating") {
-    if (chore.currentAssigneeId !== userId) return null;
-    return computeRotatingStatus(chore, completions);
-  }
-  if (chore.assignmentType === "Personal" && chore.createdBy !== userId) return null;
-  if (
-    chore.assignmentType === "Fixed" &&
-    chore.participants.length > 0 &&
-    !chore.participants.includes(userId)
-  )
-    return null;
-  return computeStatus(chore.id, userId, chore.frequency, completions, chore.deadline);
-}
 
 function getMemberName(userId: string, members: HouseholdMember[]): string {
   return members.find((m) => m.userId === userId)?.userName ?? "Unknown";
@@ -280,7 +167,7 @@ function FrequencySelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as ChoreFrequency)}
-        className="w-full px-4 py-2.5 pr-10 bg-white border border-charcoal-muted/20 rounded-lg text-sm font-semibold text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors appearance-none"
+        className="w-full px-4 py-2.5 pr-10 bg-white border border-line rounded-lg text-sm font-semibold text-charcoal focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors appearance-none"
       >
         {FREQUENCIES.map((f) => (
           <option key={f.value} value={f.value}>
@@ -323,7 +210,7 @@ function ParticipantPicker({
   return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+        <label className="block text-xs font-medium text-charcoal-muted">
           Members
         </label>
         <button
@@ -363,10 +250,10 @@ function ParticipantPicker({
               type="button"
               onClick={() => onToggle(member.userId)}
               className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-semibold transition-all",
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-semibold transition",
                 isSelected
                   ? "bg-primary-light border-primary/30 text-primary"
-                  : "bg-cream border-charcoal-muted/20 text-charcoal-light hover:border-primary/20 hover:text-charcoal"
+                  : "bg-cream border-line text-charcoal-light hover:border-primary/20 hover:text-charcoal"
               )}
             >
               <Avatar name={member.userName} size="sm" />
@@ -496,18 +383,18 @@ function EditChoreModal({ chore, members, onSave, onClose }: EditChoreModalProps
     <Modal open onClose={onClose} title={`Edit "${chore.name}"`}>
       <form onSubmit={handleSave} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+          <label className="block text-xs font-medium text-charcoal-muted">
             Chore Name
           </label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2.5 bg-white border border-charcoal-muted/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+            className="w-full px-4 py-2.5 bg-white border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+          <label className="block text-xs font-medium text-charcoal-muted">
             Frequency
           </label>
           <FrequencySelect value={frequency} onChange={setFrequency} />
@@ -525,26 +412,26 @@ function EditChoreModal({ chore, members, onSave, onClose }: EditChoreModalProps
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+            <label className="block text-xs font-medium text-charcoal-muted">
               Deadline (optional)
             </label>
             <input
               type="date"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white border border-charcoal-muted/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              className="w-full px-4 py-2.5 bg-white border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
             />
           </div>
           {chore.assignmentType === "Rotating" && (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+              <label className="block text-xs font-medium text-charcoal-muted">
                 End Date (optional)
               </label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-charcoal-muted/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                className="w-full px-4 py-2.5 bg-white border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
               />
             </div>
           )}
@@ -552,11 +439,11 @@ function EditChoreModal({ chore, members, onSave, onClose }: EditChoreModalProps
 
         {error && <p className="text-sm text-error font-medium">{error}</p>}
 
-        <div className="flex justify-end gap-3 pt-1 border-t border-charcoal-muted/10">
+        <div className="flex justify-end gap-3 pt-1 border-t border-line">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 border border-charcoal-muted/20 text-charcoal-light rounded-lg font-semibold text-sm hover:bg-cream transition-colors"
+            className="px-5 py-2 border border-line text-charcoal-light rounded-lg font-semibold text-sm hover:bg-cream transition-colors"
           >
             Cancel
           </button>
@@ -605,26 +492,26 @@ function ChoreCard({
   const freqLabel = FREQUENCIES.find((f) => f.value === chore.frequency)?.label ?? chore.frequency;
 
   return (
-    <div className="bg-white rounded-xl border border-charcoal-muted/10 shadow-sm hover:shadow-md hover:border-primary/20 transition-all group relative overflow-hidden flex flex-col">
-      <div className={cn("absolute top-0 left-0 w-1 h-full", STATUS_BORDER[status])} />
+    <div className="bg-white rounded-2xl border border-line shadow-card hover:shadow-md hover:border-charcoal-muted/25 transition group relative overflow-hidden flex flex-col">
+      <div className={cn("absolute top-4 bottom-4 left-0 w-[3px] rounded-r-full", STATUS_BORDER[status])} />
 
       <div className="p-5 pl-6 flex flex-col gap-4 flex-1">
         {/* Header */}
         <div className="flex items-start gap-2">
           <div className="flex-1 min-w-0">
-            <h4 className="font-bold text-charcoal group-hover:text-primary transition-colors leading-tight truncate">
+            <h4 className="font-semibold text-[15px] text-charcoal leading-snug truncate">
               {chore.name}
             </h4>
             <div className="flex flex-wrap gap-1.5 mt-2">
               <span
                 className={cn(
-                  "px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-tight",
+                  "px-2 py-0.5 rounded-md text-xs font-medium",
                   TYPE_COLORS[chore.assignmentType]
                 )}
               >
                 {chore.assignmentType}
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-tight bg-cream-dark text-charcoal-light">
+              <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-cream-dark text-charcoal-light">
                 {freqLabel}
               </span>
             </div>
@@ -632,7 +519,7 @@ function ChoreCard({
           <div className="flex items-center gap-1 shrink-0">
             <span
               className={cn(
-                "px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider",
+                "px-2 py-0.5 rounded-full text-[11px] font-semibold",
                 STATUS_COLORS[status]
               )}
             >
@@ -642,7 +529,7 @@ function ChoreCard({
               <>
                 <button
                   onClick={onEdit}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded text-charcoal-muted hover:text-primary hover:bg-primary-light transition-all"
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded text-charcoal-muted hover:text-primary hover:bg-primary-light transition"
                   aria-label="Edit chore"
                 >
                   <svg
@@ -660,7 +547,7 @@ function ChoreCard({
                 </button>
                 <button
                   onClick={onDelete}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded text-charcoal-muted hover:text-error hover:bg-error-light transition-all"
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded text-charcoal-muted hover:text-error hover:bg-error-light transition"
                   aria-label="Delete chore"
                 >
                   <svg
@@ -686,28 +573,28 @@ function ChoreCard({
         {/* Info */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider">
+            <span className="text-xs font-medium text-charcoal-muted">
               Assigned
             </span>
             <AssignedLabel chore={chore} members={members} />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider">
+            <span className="text-xs font-medium text-charcoal-muted">
               Last Done
             </span>
             <span className="text-xs font-semibold text-charcoal-light">{lastDone}</span>
           </div>
           {nextPerson && (
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider">
+              <span className="text-xs font-medium text-charcoal-muted">
                 Up Next
               </span>
-              <span className="text-xs font-extrabold text-primary">{nextPerson}</span>
+              <span className="text-xs font-semibold text-primary">{nextPerson}</span>
             </div>
           )}
           {chore.deadline && (
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider">
+              <span className="text-xs font-medium text-charcoal-muted">
                 Deadline
               </span>
               <span className={cn(
@@ -720,7 +607,7 @@ function ChoreCard({
           )}
           {ended && (
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-charcoal-muted uppercase tracking-wider">
+              <span className="text-xs font-medium text-charcoal-muted">
                 Ended
               </span>
               <span className="text-xs font-semibold text-charcoal-muted">
@@ -733,7 +620,7 @@ function ChoreCard({
         {/* Action */}
         <div className="mt-auto pt-1">
           {ended ? (
-            <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center text-charcoal-muted bg-cream border border-charcoal-muted/10">
+            <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center text-charcoal-muted bg-cream border border-line">
               Rotation ended
             </div>
           ) : canComplete ? (
@@ -741,16 +628,16 @@ function ChoreCard({
               onClick={onMarkComplete}
               disabled={completing || status === "Completed"}
               className={cn(
-                "w-full py-2.5 rounded-lg text-sm font-bold transition-all border",
+                "w-full py-2.5 rounded-lg text-sm font-bold transition border",
                 status === "Completed"
                   ? "bg-sage-light text-sage border-sage/20 cursor-default"
-                  : "bg-white border-charcoal-muted/20 text-charcoal hover:bg-primary hover:text-white hover:border-primary disabled:opacity-50"
+                  : "bg-white border-line text-charcoal hover:bg-primary hover:text-white hover:border-primary disabled:opacity-50"
               )}
             >
               {completing ? "Saving…" : status === "Completed" ? "Completed ✓" : "Mark Complete"}
             </button>
           ) : chore.assignmentType === "Rotating" ? (
-            <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center text-charcoal-muted bg-cream border border-charcoal-muted/10">
+            <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center text-charcoal-muted bg-cream border border-line">
               Assigned to{" "}
               {chore.currentAssigneeId ? getMemberName(chore.currentAssigneeId, members) : "—"}
             </div>
@@ -789,7 +676,7 @@ function ChoreRow({
         </span>
         <span
           className={cn(
-            "self-start px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-tight",
+            "self-start px-1.5 py-0.5 rounded-md text-[11px] font-medium",
             TYPE_COLORS[chore.assignmentType]
           )}
         >
@@ -803,7 +690,7 @@ function ChoreRow({
       <div className="col-span-2">
         <span
           className={cn(
-            "px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider",
+            "px-2 py-0.5 rounded-full text-[11px] font-semibold",
             STATUS_COLORS[status]
           )}
         >
@@ -824,7 +711,7 @@ function ChoreRow({
           <>
             <button
               onClick={onEdit}
-              className="opacity-0 group-hover:opacity-100 text-charcoal-muted hover:text-primary transition-all"
+              className="opacity-0 group-hover:opacity-100 text-charcoal-muted hover:text-primary transition"
               aria-label="Edit"
             >
               <svg
@@ -842,7 +729,7 @@ function ChoreRow({
             </button>
             <button
               onClick={onDelete}
-              className="opacity-0 group-hover:opacity-100 text-charcoal-muted hover:text-error transition-all"
+              className="opacity-0 group-hover:opacity-100 text-charcoal-muted hover:text-error transition"
               aria-label="Delete"
             >
               <svg
@@ -1103,7 +990,7 @@ export function ChoresPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display font-extrabold text-3xl text-charcoal tracking-tight">
+          <h1 className="font-display text-[2rem] sm:text-4xl leading-[1.1] text-charcoal">
             Chores
           </h1>
           <p className="text-charcoal-muted mt-1 text-sm">
@@ -1137,39 +1024,39 @@ export function ChoresPage() {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-xl border border-charcoal-muted/10 shadow-sm p-6 space-y-5 animate-slide-up"
+          className="bg-white rounded-xl border border-line shadow-sm p-6 space-y-5 animate-slide-up"
         >
-          <h3 className="text-xs font-bold text-charcoal-muted uppercase tracking-widest">
+          <h3 className="text-[13px] font-semibold text-charcoal-muted">
             New Chore
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5 md:col-span-2">
-              <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+              <label className="block text-xs font-medium text-charcoal-muted">
                 Chore Name
               </label>
               <input
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 placeholder="e.g. Deep clean kitchen"
-                className="w-full px-4 py-2.5 bg-white border border-charcoal-muted/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                className="w-full px-4 py-2.5 bg-white border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
               />
             </div>
 
             {/* Assignment Type — hidden for solo */}
             {!isSinglePersonMode && (
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+                <label className="block text-xs font-medium text-charcoal-muted">
                   Type
                 </label>
-                <div className="flex bg-cream p-1 rounded-lg border border-charcoal-muted/10 gap-0.5">
+                <div className="flex bg-cream p-1 rounded-lg border border-line gap-0.5">
                   {ASSIGNMENT_TYPES.map((t) => (
                     <button
                       key={t.value}
                       type="button"
                       onClick={() => handleTypeChange(t.value)}
                       className={cn(
-                        "flex-1 py-2 text-xs font-bold rounded-md transition-all",
+                        "flex-1 py-2 text-xs font-bold rounded-lg transition",
                         form.assignmentType === t.value
                           ? "bg-white shadow-sm text-primary"
                           : "text-charcoal-muted hover:text-charcoal"
@@ -1184,7 +1071,7 @@ export function ChoresPage() {
 
             {/* Fix #3: Frequency with dropdown arrow */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+              <label className="block text-xs font-medium text-charcoal-muted">
                 Frequency
               </label>
               <FrequencySelect
@@ -1197,7 +1084,7 @@ export function ChoresPage() {
           {/* Deadline + End Date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+              <label className="block text-xs font-medium text-charcoal-muted">
                 Deadline (optional)
               </label>
               <input
@@ -1205,13 +1092,13 @@ export function ChoresPage() {
                 value={form.deadline}
                 min={new Date().toISOString().slice(0, 10)}
                 onChange={(e) => setForm((p) => ({ ...p, deadline: e.target.value }))}
-                className="w-full px-4 py-2.5 bg-white border border-charcoal-muted/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                className="w-full px-4 py-2.5 bg-white border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
               />
               <p className="text-[10px] text-charcoal-muted">Chore is overdue if not done by this date</p>
             </div>
             {!isSinglePersonMode && form.assignmentType === "Rotating" && (
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-charcoal-muted uppercase tracking-widest">
+                <label className="block text-xs font-medium text-charcoal-muted">
                   End Date (optional)
                 </label>
                 <input
@@ -1219,7 +1106,7 @@ export function ChoresPage() {
                   value={form.endDate}
                   min={new Date().toISOString().slice(0, 10)}
                   onChange={(e) => setForm((p) => ({ ...p, endDate: e.target.value }))}
-                  className="w-full px-4 py-2.5 bg-white border border-charcoal-muted/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                  className="w-full px-4 py-2.5 bg-white border border-line rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
                 />
                 <p className="text-[10px] text-charcoal-muted">Rotation stops after this date</p>
               </div>
@@ -1239,11 +1126,11 @@ export function ChoresPage() {
 
           {formError && <p className="text-sm text-error font-medium">{formError}</p>}
 
-          <div className="flex justify-end gap-3 pt-1 border-t border-charcoal-muted/10">
+          <div className="flex justify-end gap-3 pt-1 border-t border-line">
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-5 py-2 border border-charcoal-muted/20 text-charcoal-light rounded-lg font-semibold text-sm hover:bg-cream transition-colors"
+              className="px-5 py-2 border border-line text-charcoal-light rounded-lg font-semibold text-sm hover:bg-cream transition-colors"
             >
               Cancel
             </button>
@@ -1260,13 +1147,13 @@ export function ChoresPage() {
 
       {/* Tabs + View toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex bg-cream border border-charcoal-muted/10 p-1 rounded-xl gap-0.5">
+        <div className="flex bg-cream border border-line p-1 rounded-xl gap-0.5">
           {(["All", "My", "Overdue"] as ChoreTab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={cn(
-                "px-4 py-1.5 rounded-lg text-sm font-bold transition-all flex items-center gap-1.5",
+                "px-4 py-1.5 rounded-lg text-sm font-bold transition flex items-center gap-1.5",
                 tab === t
                   ? "bg-white text-charcoal shadow-sm"
                   : "text-charcoal-muted hover:text-charcoal"
@@ -1282,11 +1169,11 @@ export function ChoresPage() {
           ))}
         </div>
 
-        <div className="flex bg-cream border border-charcoal-muted/10 p-1 rounded-xl self-start sm:self-auto">
+        <div className="flex bg-cream border border-line p-1 rounded-xl self-start sm:self-auto">
           <button
             onClick={() => setViewMode("grid")}
             className={cn(
-              "p-2 rounded-lg transition-all",
+              "p-2 rounded-lg transition",
               viewMode === "grid"
                 ? "bg-white text-primary shadow-sm"
                 : "text-charcoal-muted hover:text-charcoal"
@@ -1305,7 +1192,7 @@ export function ChoresPage() {
           <button
             onClick={() => setViewMode("list")}
             className={cn(
-              "p-2 rounded-lg transition-all",
+              "p-2 rounded-lg transition",
               viewMode === "list"
                 ? "bg-white text-primary shadow-sm"
                 : "text-charcoal-muted hover:text-charcoal"
@@ -1372,15 +1259,15 @@ export function ChoresPage() {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-charcoal-muted/10 shadow-sm overflow-hidden">
-          <div className="grid grid-cols-12 px-5 py-3 bg-cream border-b border-charcoal-muted/10 text-[10px] font-black text-charcoal-muted uppercase tracking-widest">
+        <div className="bg-white rounded-xl border border-line shadow-sm overflow-hidden">
+          <div className="grid grid-cols-12 px-5 py-3 bg-cream border-b border-line text-[11px] font-semibold text-charcoal-muted uppercase tracking-wider">
             <div className="col-span-4">Chore</div>
             <div className="col-span-3">Assigned To</div>
             <div className="col-span-2">Frequency</div>
             <div className="col-span-2">Status</div>
             <div className="col-span-1 text-right">Actions</div>
           </div>
-          <div className="divide-y divide-charcoal-muted/5">
+          <div className="divide-y divide-line">
             {visibleChores.map((chore) => (
               <ChoreRow
                 key={chore.id}
@@ -1400,7 +1287,7 @@ export function ChoresPage() {
 
       {/* Fix #7: Recently Completed section */}
       {recentCompletions.length > 0 && (
-        <div className="bg-white rounded-xl border border-charcoal-muted/10 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-line shadow-sm overflow-hidden">
           <button
             onClick={() => setShowRecent((v) => !v)}
             className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-cream transition-colors"
@@ -1441,7 +1328,7 @@ export function ChoresPage() {
           </button>
 
           {showRecent && (
-            <div className="border-t border-charcoal-muted/10 divide-y divide-charcoal-muted/5">
+            <div className="border-t border-line divide-y divide-line">
               {recentCompletions.map((log) => {
                 const chore = chores.find((c) => c.id === log.choreId);
                 if (!chore) return null;
@@ -1469,7 +1356,7 @@ export function ChoresPage() {
                     <button
                       onClick={() => handleRestore(chore.id, log.id, chore.name)}
                       disabled={restoringId === log.id}
-                      className="ml-4 shrink-0 text-xs font-bold text-charcoal-muted hover:text-primary border border-charcoal-muted/20 hover:border-primary/30 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                      className="ml-4 shrink-0 text-xs font-bold text-charcoal-muted hover:text-primary border border-line hover:border-primary/30 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
                     >
                       {restoringId === log.id ? "…" : "Restore"}
                     </button>
